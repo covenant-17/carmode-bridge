@@ -1,6 +1,6 @@
 # CarMode Bridge
 
-A native Java Android app that replaces the steering-wheel MODE menu on a Toyota Camry XV40 head unit. Built with **Maven only**, without Gradle, root, ADB or system APK modification.
+A native Android app that replaces the stock MODE menu on aftermarket head units with HCN OEM software, tested on **UIS8581A running Android 10 / API 29**. It receives steering-wheel MODE presses through HCN OEM broadcasts rather than relying on standard Android key input. This input path works **without Accessibility access or root**, and leaves system APKs unchanged.
 
 Current application version: **0.1.22**, Android versionCode **23**.
 
