@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.carmode</groupId><artifactId>carmode-bridge</artifactId><version>0.1.22</version>
+  <name>carmode-bridge</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>8</maven.compiler.release>
+    <android.sdk>${env.LOCALAPPDATA}/Android/Sdk</android.sdk>
+    <android.platform>34</android.platform><android.buildTools>34.0.0</android.buildTools>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>local.android</groupId><artifactId>android</artifactId><version>${android.platform}</version>
+      <scope>system</scope><systemPath>${android.sdk}/platforms/android-${android.platform}/android.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>5.10.2</version><scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-enforcer-plugin</artifactId><version>3.5.0</version>
+        <executions><execution><id>build-runtime</id><goals><goal>enforce</goal></goals>
+          <configuration><rules>
+            <requireJavaVersion><version>[17,18)</version><message>Use JDK 17 for Android Build Tools 34. Set JAVA_HOME to your JDK 17 directory; see README.md.</message></requireJavaVersion>
+            <requireMavenVersion><version>[3.9,)</version></requireMavenVersion>
+          </rules></configuration>
+        </execution></executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId><artifactId>exec-maven-plugin</artifactId><version>3.5.0</version>
+        <configuration>
+          <executable>powershell.exe</executable>
+        </configuration>
+        <executions>
+          <execution><id>bytecode-guard-tests</id><phase>test</phase><goals><goal>exec</goal></goals>
+            <configuration><arguments combine.self="override">
+              <argument>-NoProfile</argument><argument>-ExecutionPolicy</argument><argument>Bypass</argument>
+              <argument>-File</argument><argument>${project.basedir}/scripts/test-bytecode-validation.ps1</argument>
+            </arguments></configuration>
+          </execution>
+          <execution><id>android-resources</id><phase>generate-sources</phase><goals><goal>exec</goal></goals>
+            <configuration><arguments combine.self="override">
+              <argument>-NoProfile</argument><argument>-ExecutionPolicy</argument><argument>Bypass</argument>
+              <argument>-File</argument><argument>${project.basedir}/scripts/android-build.ps1</argument>
+              <argument>-Phase</argument><argument>resources</argument>
+              <argument>-Sdk</argument><argument>${android.sdk}</argument>
+              <argument>-Platform</argument><argument>${android.platform}</argument>
+              <argument>-BuildTools</argument><argument>${android.buildTools}</argument>
+              <argument>-JavaHome</argument><argument>${java.home}</argument>
+              <argument>-Version</argument><argument>${project.version}</argument>
+            </arguments></configuration>
+          </execution>
+          <execution><id>android-apk</id><phase>package</phase><goals><goal>exec</goal></goals>
+            <configuration><arguments combine.self="override">
+              <argument>-NoProfile</argument><argument>-ExecutionPolicy</argument><argument>Bypass</argument>
+              <argument>-File</argument><argument>${project.basedir}/scripts/android-build.ps1</argument>
+              <argument>-Phase</argument><argument>package</argument>
+              <argument>-Sdk</argument><argument>${android.sdk}</argument>
+              <argument>-Platform</argument><argument>${android.platform}</argument>
+              <argument>-BuildTools</argument><argument>${android.buildTools}</argument>
+              <argument>-JavaHome</argument><argument>${java.home}</argument>
+              <argument>-Version</argument><argument>${project.version}</argument>
+            </arguments></configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.0</version>
+        <executions>
+          <execution><id>android-r</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals>
+            <configuration><sources><source>${project.build.directory}/generated-sources/android</source></sources></configuration>
+          </execution>
+          <execution><id>attach-apk</id><phase>package</phase><goals><goal>attach-artifact</goal></goals>
+            <configuration><artifacts><artifact><file>${project.build.directory}/${project.artifactId}-${project.version}-debug.apk</file><type>apk</type><classifier>debug</classifier></artifact></artifacts></configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version></plugin>
+      <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.2.5</version></plugin>
+      <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId><version>3.4.2</version></plugin>
+      <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-clean-plugin</artifactId><version>3.4.0</version></plugin>
+    </plugins>
+  </build>
+</project>

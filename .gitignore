@@ -1,0 +1,38 @@
+# Maven / Android build output
+/target/
+*.apk
+*.aab
+*.apks
+*.dex
+*.class
+
+# Local tools, reverse-engineering output and uploaded attachments
+/.local/
+/.codex-remote-attachments/
+
+# Signing material and machine-local configuration
+*.keystore
+*.jks
+*.p12
+*.pfx
+local.properties
+.env
+.env.*
+!.env.example
+
+# IDE and operating-system files
+/.idea/
+/.vscode/
+*.iml
+.classpath
+.project
+/.settings/
+Thumbs.db
+.DS_Store
+*.log
+
+# Track documentation, but not local device evidence or exported APK inputs.
+/docs/local/
+
+# Build scripts are kept locally only, as requested.
+/scripts/

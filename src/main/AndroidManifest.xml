@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.carmode.bridge" android:versionCode="23" android:versionName="0.1.22">
+    <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="29" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <queries><package android:name="com.hcn.autosource" /><package android:name="ivicar.cn.ivicaravm" /><package android:name="com.zjinnova.zlink" /><package android:name="com.android.launcher3" /></queries>
+    <application android:name=".CarModeApp" android:label="CarMode Bridge" android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Material.NoActionBar" android:allowBackup="false" android:supportsRtl="true" android:usesCleartextTraffic="true">
+        <activity android:name=".LauncherActivity" android:exported="true" android:label="CarMode Bridge" android:icon="@drawable/ic_launcher">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".MainActivity" android:exported="true" />
+        <activity android:name=".HomeProxyActivity" android:exported="true" android:label="CarMode Bridge"
+            android:theme="@style/HomeProxyTheme"
+            android:launchMode="singleTask" android:taskAffinity="com.carmode.bridge.home" android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ALL_APPS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".CrashActivity" android:exported="false" />
+        <service android:name=".ModeRuntimeService" android:directBootAware="true" android:exported="false" android:stopWithTask="false" />
+        <service android:name=".ModeService" android:stopWithTask="false" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:exported="true" android:label="@string/service_label">
+            <intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility"/>
+        </service>
+        <receiver android:name=".BootReceiver" android:directBootAware="true" android:exported="true">
+            <intent-filter><action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/><action android:name="android.intent.action.BOOT_COMPLETED"/><action android:name="android.intent.action.MY_PACKAGE_REPLACED"/></intent-filter>
+        </receiver>
+        <receiver android:name=".ModeWakeReceiver" android:exported="true">
+            <intent-filter android:priority="998">
+                <action android:name="android.intent.action.KSRC_BUTTON" />
+            </intent-filter>
+        </receiver>
+        <provider android:name=".LogProvider" android:authorities="com.carmode.bridge.logs" android:exported="false" android:grantUriPermissions="true"/>
+    </application>
+</manifest>
