@@ -33,6 +33,3 @@ Thumbs.db
 
 # Track documentation, but not local device evidence or exported APK inputs.
 /docs/local/
-
-# Build scripts are kept locally only, as requested.
-/scripts/

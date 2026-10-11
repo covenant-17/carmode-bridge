@@ -53,6 +53,13 @@ The firmware's advertised Android 15 label is not its actual API level. Applicat
 
 Requirements: **JDK 17**, Maven **3.9+**, Android SDK Platform **34**, Android SDK Build Tools **34.0.0**, and PowerShell. SDK components can be installed through Android Studio's SDK Manager; Android Studio is not needed for subsequent builds.
 
+Clone the repository, enter its directory and run the Maven build. All required project build scripts are included:
+
+```powershell
+git clone https://github.com/covenant-17/carmode-bridge.git
+cd carmode-bridge
+```
+
 ```powershell
 $env:JAVA_HOME = 'C:/Program Files/Java/jdk-17'
 mvn -B clean verify
@@ -70,7 +77,7 @@ Output: `target/carmode-bridge-0.1.22-debug.apk`.
 - `mvn package`: tests and APK compilation, alignment and signature validation.
 - `mvn verify`: the complete lifecycle through packaging and verification.
 
-Maven invokes AAPT2, javac, D8, zipalign and apksigner through the local PowerShell scripts. The `scripts/` directory is excluded from Git by repository policy; copy it separately before building a fresh clone. APK packaging uses a fresh private `target/apk-staging/<uuid>` directory rather than trusting IDE-writable `target/classes`. JAR, DEX and signed APK checks reject `Unresolved compilation problem` compiler stubs. The APK is attached to the Maven artifact with classifier `debug`.
+Maven invokes AAPT2, javac, D8, zipalign and apksigner through the included PowerShell scripts in `scripts/`; no separate script download or manual invocation is needed. APK packaging uses a fresh private `target/apk-staging/<uuid>` directory rather than trusting IDE-writable `target/classes`. JAR, DEX and signed APK checks reject `Unresolved compilation problem` compiler stubs. The APK is attached to the Maven artifact with classifier `debug`.
 
 Open `pom.xml` as a Maven project in your IDE. Android Studio Gradle Run/Sync is not supported. Use JDK 17: the configured Build Tools/D8 combination previously failed with JDK 21.
 
@@ -134,14 +141,14 @@ See [Diagnostics and recovery](docs/DIAGNOSTICS.md) for test procedures, export 
 | --- | --- |
 | `src/main/` | Android Java source, manifest and EN/ru resources |
 | `src/test/` | Java regression tests |
-| `scripts/` | Required local Maven/Android build scripts; ignored, copy separately for a clone |
+| `scripts/` | Included Maven/Android build and bytecode-validation scripts |
 | `docs/*.md` | Specifications, operational guides and OEM research |
 | `docs/local/` | Ignored APKs, device logs, macro exports and reference images |
 | `target/` | Ignored build output |
 | `.local/` | Ignored signing key and local analysis/tools |
 | `.codex-remote-attachments/` | Ignored uploaded diagnostic material |
 
-Source, tests and Markdown documentation belong in Git. Raw APKs, device logs, macro exports and reference images are kept in ignored `docs/local/`; build scripts remain in ignored `scripts/` by request. These files are retained locally, not deleted. This is an independent Git repository rooted in this project directory; no remote or publication is required for local use.
+Source, tests, build scripts and Markdown documentation belong in Git. Raw APKs, device logs, macro exports and reference images are kept in ignored `docs/local/`. Local evidence and signing keys are retained locally, not deleted. This is an independent Git repository rooted in this project directory.
 
 ## Documentation
 

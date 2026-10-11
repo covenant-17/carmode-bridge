@@ -6,7 +6,7 @@ Historical implementation notes. Current operation and setup are documented in [
 
 - Translate remaining documentation to English and reorganize README around the current product.
 - Document the full 93-command static OEM key catalogue and diagnostic/recovery procedures.
-- Initialize an independent local Git repository; keep source and Markdown, move device evidence to ignored docs/local/, and ignore local scripts, signing material and generated output. Scripts must be copied separately to build a fresh clone.
+- Initialize an independent local Git repository; include source, Markdown and required build scripts, move device evidence to ignored docs/local/, and ignore signing material and generated output. Document clone-to-APK Maven setup without separate script copying.
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - Documentation/test-only maintenance: application version remains 0.1.22; no new APK.
 

@@ -228,7 +228,7 @@ The original broader acceptance also required a functioning Navigation Proxy and
 
 Provide the Java source, Maven/Android SDK build, an installable APK, English README and documentation, installation/permission instructions, app-assignment/rollback guidance, honest implementation limits, relevant observed broadcast contracts and automated regression tests.
 
-Track source, tests and Markdown guides in Git. Store exported APKs/macros, raw diagnostics and reference images in ignored `docs/local/`. Build scripts remain local in ignored `scripts/` by user request and must be copied separately to build a fresh clone. Also ignore signing material, generated builds and uploaded attachments. Preserve local evidence; ignoring a file is not deleting it. Remote setup, commits and publishing require a separate request.
+Track source, tests, required build scripts and Markdown guides in Git so a clone includes the Maven packaging workflow. Store exported APKs/macros, raw diagnostics and reference images in ignored `docs/local/`. Also ignore signing material, generated builds and uploaded attachments. Preserve local evidence; ignoring a file is not deleting it. Remote setup, commits and publishing require a separate request.
 
 Development priority remains: **MODE interception → custom menu → native launch → verified ZLink actions → Navigation Proxy**.
 
