@@ -148,8 +148,7 @@ final class CamryHome {
         content.addView(windowArea, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
         LinearLayout side = new LinearLayout(activity); side.setOrientation(LinearLayout.VERTICAL);
         int inset = CamryUi.dp(activity, 6); side.setPadding(inset, inset, inset, inset);
-        ScrollView scroll = new ScrollView(activity); scroll.addView(side);
-        body.addView(scroll, new LinearLayout.LayoutParams(CamryUi.dp(activity, 64), LinearLayout.LayoutParams.MATCH_PARENT));
+        body.addView(side, new LinearLayout.LayoutParams(CamryUi.dp(activity, 64), LinearLayout.LayoutParams.MATCH_PARENT));
         CamryUi.iconButton(side, R.string.camera, this::openCamera);
         CamryUi.iconButton(side, R.string.camry_apps, this::openApps);
         CamryUi.iconButton(side, R.string.camry_settings, () -> openSettings(new Intent(activity, MainActivity.class)));

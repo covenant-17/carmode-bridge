@@ -12,23 +12,49 @@ import android.view.*;
 import android.widget.*;
 import java.util.function.IntConsumer;
 
-/** Five persistent shortcuts. Drag changes assignments only, never installed packages. */
+/** Persistent shortcuts grow from five cells. Drag changes assignments only, never installed packages. */
 final class CamryPinnedApps {
     private final Activity activity;
     private final Prefs prefs;
     private final LinearLayout slots;
+    private final ScrollView scroll;
     private final IntConsumer choose;
     private TextView trash;
     private WindowManager windows;
     private int dragging = -1;
     private String dragToken;
+    private int scrollDirection;
+    private final Runnable edgeScroll = new Runnable() {
+        public void run() {
+            if (dragging < 0 || scrollDirection == 0) return;
+            int previous = scroll.getScrollY();
+            scroll.scrollBy(0, scrollDirection * CamryUi.dp(activity, 8));
+            if (previous != scroll.getScrollY()) scroll.postDelayed(this, 32);
+            else scrollDirection = 0;
+        }
+    };
     CamryPinnedApps(Activity activity, LinearLayout side, IntConsumer choose) {
         this.activity = activity; this.choose = choose; prefs = CarModeApp.from(activity).prefs();
         View separator = new View(activity); separator.setBackgroundColor(0x5549D6CF);
         LinearLayout.LayoutParams line = new LinearLayout.LayoutParams(-1, CamryUi.dp(activity, 1));
         line.setMargins(CamryUi.dp(activity, 8), CamryUi.dp(activity, 12), CamryUi.dp(activity, 8), CamryUi.dp(activity, 16));
         side.addView(separator, line);
-        slots = new LinearLayout(activity); slots.setOrientation(LinearLayout.VERTICAL); side.addView(slots);
+        scroll = new ScrollView(activity) {
+            @Override public boolean dispatchDragEvent(DragEvent event) {
+                if (dragging >= 0) {
+                    if (event.getAction() == DragEvent.ACTION_DRAG_LOCATION) {
+                        int edge = CamryUi.dp(activity, 36);
+                        autoScroll(event.getY() < edge ? -1 : event.getY() > getHeight() - edge ? 1 : 0);
+                    } else if (event.getAction() == DragEvent.ACTION_DRAG_EXITED
+                            || event.getAction() == DragEvent.ACTION_DRAG_ENDED) autoScroll(0);
+                }
+                return super.dispatchDragEvent(event);
+            }
+        };
+        scroll.setVerticalScrollBarEnabled(false); scroll.setHorizontalScrollBarEnabled(false);
+        scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        slots = new LinearLayout(activity); slots.setOrientation(LinearLayout.VERTICAL); scroll.addView(slots);
+        side.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
         refresh();
     }
     void refresh() {
@@ -139,8 +165,14 @@ final class CamryPinnedApps {
                 && event.getClipDescription() != null && dragToken.contentEquals(event.getClipDescription().getLabel()));
     }
     void close() {
+        autoScroll(0);
         dragging = -1;
         if (trash != null) { try { windows.removeViewImmediate(trash); } catch (RuntimeException ignored) {} trash = null; }
+    }
+    private void autoScroll(int direction) {
+        if (scrollDirection == direction) return;
+        scrollDirection = direction; scroll.removeCallbacks(edgeScroll);
+        if (direction != 0) scroll.post(edgeScroll);
     }
     private final class ShortcutSymbol extends android.graphics.drawable.Drawable {
         private final boolean remove;

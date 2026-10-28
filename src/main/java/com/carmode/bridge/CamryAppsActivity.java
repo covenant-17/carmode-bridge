@@ -25,7 +25,10 @@ public final class CamryAppsActivity extends CamryActivity {
             catch (RuntimeException failure) { CamryControl.error(context, R.string.camry_launch_failed); }
         }
     }
-    boolean picking() { int slot = getIntent().getIntExtra("camry_pin_slot", -1); return slot >= 0 && slot < 5; }
+    boolean picking() {
+        int slot = getIntent().getIntExtra("camry_pin_slot", -1);
+        return slot >= 0 && slot < CarModeApp.from(this).prefs().pinnedApps().length;
+    }
     void selected(AppResolver.Entry entry) {
         if (!picking()) return;
         CarModeApp.from(this).prefs().pinApp(getIntent().getIntExtra("camry_pin_slot", -1), entry.component.flattenToString());

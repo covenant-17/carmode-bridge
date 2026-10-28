@@ -9,6 +9,47 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Exercise the real Prefs adapter without invoking Android's Context/framework stubs. */
 class CamryPreferencesTest {
+    @Test void fillingEveryCellAddsOneEmptyCellBeyondFiveAndPersistsAssignments() {
+        Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
+        for (int i = 0; i < 12; i++) {
+            prefs.pinApp(i, "app" + i + "/.Main");
+            assertEquals(Math.max(5, i + 2), prefs.pinnedApps().length);
+        }
+        prefs = disk.restart();
+        assertEquals(13, prefs.pinnedApps().length);
+        for (int i = 0; i < 12; i++) assertEquals("app" + i + "/.Main", prefs.pinnedApps()[i]);
+        assertEquals("", prefs.pinnedApps()[12]);
+        prefs.movePin(0, 11); prefs.pinApp(10, "");
+        prefs = disk.restart();
+        assertEquals("app11/.Main", prefs.pinnedApps()[0]);
+        assertEquals("app0/.Main", prefs.pinnedApps()[11]);
+        assertEquals("", prefs.pinnedApps()[10]);
+        assertEquals(13, prefs.pinnedApps().length);
+    }
+    @Test void oldFiveFilledCellsGainAnEmptyCellWithoutLosingLegacyAssignments() {
+        Memory disk = new Memory();
+        for (int i = 0; i < 5; i++) disk.values.put("camry_pin_" + i, "legacy" + i + "/.Main");
+        Prefs prefs = new Prefs(disk.data);
+        assertEquals(6, prefs.pinnedApps().length);
+        prefs.pinApp(5, "new/.Main"); prefs = disk.restart();
+        assertEquals(7, prefs.pinnedApps().length);
+        assertEquals("legacy4/.Main", prefs.pinnedApps()[4]);
+        assertEquals("new/.Main", prefs.pinnedApps()[5]);
+        prefs.restoreCamry(); prefs = disk.restart();
+        assertEquals("new/.Main", prefs.pinnedApps()[5]);
+    }
+    @Test void holesAreReusableWithoutGrowingOrMovingOtherPositions() {
+        Prefs prefs = new Prefs(new Memory().data);
+        for (int i = 0; i < 6; i++) prefs.pinApp(i, "app" + i + "/.Main");
+        prefs.pinApp(1, ""); prefs.pinApp(6, "extra/.Main");
+        assertEquals(7, prefs.pinnedApps().length);
+        prefs.pinApp(1, "fill/.Main");
+        assertEquals(8, prefs.pinnedApps().length);
+        prefs.pinApp(7, "app0/.Main");
+        assertEquals(8, prefs.pinnedApps().length);
+        assertEquals("", prefs.pinnedApps()[0]);
+        assertEquals("app0/.Main", prefs.pinnedApps()[7]);
+    }
     @Test void pinnedAppsKeepFivePositionsAcrossRestartAndRollback() {
         Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
         assertArrayEquals(new String[]{"", "", "", "", ""}, prefs.pinnedApps());

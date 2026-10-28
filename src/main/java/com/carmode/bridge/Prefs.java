@@ -53,23 +53,29 @@ public final class Prefs {
     }
 
     String[] pinnedApps() {
-        String[] slots = new String[5];
-        for (int i = 0; i < slots.length; i++) slots[i] = data.getString("camry_pin_" + i, "");
-        return slots;
+        String[] slots = new String[Math.max(5, data.getInt("camry_pin_count", 5))];
+        boolean full = true;
+        for (int i = 0; i < slots.length; i++) {
+            slots[i] = data.getString("camry_pin_" + i, "");
+            if (slots[i].isEmpty()) full = false;
+        }
+        if (!full) return slots;
+        String[] expanded = java.util.Arrays.copyOf(slots, slots.length + 1);
+        expanded[slots.length] = ""; return expanded;
     }
     void pinApp(int slot, String component) {
-        if (slot < 0 || slot >= 5) return;
         String[] slots = pinnedApps();
+        if (slot < 0 || slot >= slots.length) return;
         for (int i = 0; i < slots.length; i++) if (component.equals(slots[i])) slots[i] = "";
         slots[slot] = component; savePins(slots);
     }
     void movePin(int from, int to) {
-        if (from < 0 || from >= 5 || to < 0 || to >= 5) return;
         String[] slots = pinnedApps();
+        if (from < 0 || from >= slots.length || to < 0 || to >= slots.length) return;
         String previous = slots[to]; slots[to] = slots[from]; slots[from] = previous; savePins(slots);
     }
     private void savePins(String[] slots) {
-        SharedPreferences.Editor edit = data.edit();
+        SharedPreferences.Editor edit = data.edit().putInt("camry_pin_count", slots.length);
         for (int i = 0; i < slots.length; i++) edit.putString("camry_pin_" + i, slots[i]);
         edit.apply();
     }

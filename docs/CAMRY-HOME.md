@@ -1,4 +1,4 @@
-# Camry Home — 0.1.34
+# Camry Home — 0.1.35
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -9,6 +9,12 @@ Enable **ZLink only in Home window** in Current settings. This default-off switc
 Native Home entry reopens the window automatically. Returning focus from a bounded ZLink task now requests restoration too. Each return attempt is consumed before launch and is rearmed only after Home remains visible behind the bounded window for 750 ms; firmware repeatedly ignoring bounds cannot cause an endless fullscreen relaunch. Apps/settings navigation suppresses competing restoration. Back on CarMode itself cancels pending restoration and keeps the five-Back escape available. No global Back interception is used. External launchers, ZLink's own maximize controls and firmware decisions cannot be redirected by this app-level switch.
 
 The signed APK passed 176 JVM tests and the existing bytecode/signature checks. API 29 emulator checks used a separate schematic ZLink fixture: native Home and bounded Back restored it without a tap; selecting its Apps tile and the Dock Music action returned to Home with the bounded task at `[0,24][1216,672]`. Music uses the same dispatcher as MODE; physical CAN/MODE delivery and real ZLink remain head-unit checks. Five Back presses on the focused CarMode root cleared the feature flags and returned to OEM Fixture. Evidence: `docs/local/camry-0.1.28-home-return.png`, `camry-0.1.28-back-return.png`, `camry-0.1.28-apps-window.png`, `camry-0.1.28-mode-route.png`, `camry-0.1.28-rollback.png`.
+
+## Expandable shortcuts (0.1.35 / code 36)
+
+Start with five cells. Filling every existing position exposes one additional empty cell, with no five-app limit. The original `camry_pin_N` keys remain valid; a persisted count retains positions and holes after removal. A full legacy five-cell layout gains a sixth empty cell automatically. The picker accepts every currently displayed slot. Four primary buttons stay fixed while only shortcuts scroll, with both scrollbars and overscroll glow disabled. Dragging near the container edges scrolls towards hidden positions.
+
+181 JVM tests and signature checks passed. API 29 emulator verification filled legacy five cells, pinned Calendar into the new sixth cell and Clock into the seventh, and scrolled the shortcuts while the primary buttons stayed fixed. Evidence: `docs/local/camry-0.1.35-sixth-cell.png` and `camry-0.1.35-scrolled-pins.png`.
 
 ## Components and lifetime
 
@@ -126,7 +132,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.34-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.35-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

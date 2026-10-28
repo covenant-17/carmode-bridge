@@ -8,7 +8,65 @@ Historical implementation notes. Current operation and setup are documented in [
 - Document the full 93-command static OEM key catalogue and diagnostic/recovery procedures.
 - Initialize an independent local Git repository; include source, Markdown and required build scripts, move device evidence to ignored docs/local/, and ignore signing material and generated output. Document clone-to-APK Maven setup without separate script copying.
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
-- Documentation/test-only maintenance: application version remains 0.1.22; no new APK.
+- These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
+
+## 0.1.35
+
+- Grow pinned apps beyond five cells: when every existing cell is filled, expose one additional empty cell. Preserve original slot keys and migrate five filled legacy cells without losing assignments. Reuse holes, retain positions after deletion, and persist the slot count and assignments across reboot/rollback.
+- Keep the four primary rail controls stationary and scroll only the shortcut container without scrollbars or overscroll glow. Edge-hover during drag scrolls the shortcuts so off-screen positions can be reached.
+- Record retrospective checkpoints for 0.1.31, 0.1.33 and 0.1.34 as local commits; 0.1.31 consolidates earlier unsnapshotted Camry changes. New successful APK builds use a local commit per validated version, with no automatic push.
+
+## 0.1.34
+
+- Make the shortcut removal target transparent, retain its square accent outline and replace the cross with a theme-coloured trash icon. Hover thickens the outline without adding a fill. Keep the icon and label centred as one group.
+
+## 0.1.33
+
+- Simplify the shortcut removal target to a compact square-cornered outline with the theme accent, a cross and Remove label. Use a dark theme fill with a turquoise hover state instead of red. Drag/drop behavior is unchanged. Version 0.1.32 was an intermediate build before the square-corner correction.
+
+## 0.1.31
+
+- Add five persistent icon-only shortcuts below the window-mode Home rail, separated by a divider and extra spacing. Empty cells open the existing app grid in selection mode without launching the chosen app. Selecting an existing shortcut moves it to the chosen cell.
+- Hold a shortcut to drag it between cells (swapping occupied cells), or drop it on a temporary top-centre trash target to remove only the shortcut. Dropping elsewhere preserves assignments. The trash uses the existing overlay permission to remain above ZLink and closes after the drag or Home pause. Missing apps retain removable shortcuts; MODE assignments and rollback remain independent.
+- Verify 178 JVM tests, APK signature and emulator selection, reordering, removal, cancellation and normal shortcut launch. Update the separate emulator-only camera fixture with a schematic surround/parking scene; no demo code is included in the product APK.
+- Versions 0.1.29 and 0.1.30 were intermediate emulator builds; 0.1.31 includes the final cross-window drag cleanup.
+
+## 0.1.28
+
+- Restore the bounded ZLink window when Home regains focus after Back, as well as on native Home entry. Keep restoration attempts bounded and preserve local five-Back rollback. Scope lifecycle cancellation so an older settings screen cannot cancel the replacement Home request.
+- Add default-off ZLink-only-in-Home routing for CarMode Apps, MODE and Dock, preserving the requested ZLink Activity. Enabling it enables Home/window mode; disabling Home/window or rolling back clears it. No ordinary-launch fallback is used after a Home-only window launch failure. External launchers and firmware fullscreen controls remain outside this routing.
+- Validate 176 JVM tests, APK packaging/signature, emulator Home/Back restoration, Apps routing and the shared MODE/Dock dispatcher.
+
+## 0.1.27
+
+- Remove expanded left/right vertical Dock layouts. Expanded Dock is always horizontal at the bottom, retaining its raised bottom inset. Dock position now selects one of four corners for the collapsed Open Dock button. Old bottom/left/right values fall back to bottom right; corner changes update an active session immediately.
+
+## 0.1.26
+
+- Scope delayed ZLink launch cancellation to its owning Home controller during lifecycle teardown. Closing the Apps task no longer cancels the replacement window request on Home.
+
+## 0.1.25
+
+- Restore automatic Dock after leaving the Apps task for a fullscreen destination, and preserve ZLink tracking while Apps covers Home.
+
+## 0.1.24
+
+- Open Apps in a separate private, opaque application task with an explicit fullscreen launch hint. Sidebar, Dock and Camry ALL_APPS entries use the same tile grid above ZLink instead of changing the HOME window underneath it. Back closes the grid; its Home button returns to Camry.
+
+## 0.1.23
+
+- Automatically fill window-mode Camry Home with ZLink on explicit Home entry and return from its camera/settings actions. Keep one request per visit, stable-bounds/focus checks, cancellation and rollback. Separate this from the ordinary once-per-boot startup option so the boot claim cannot leave Home empty on later visits.
+- Restore ZLink to the Home window after returning from its fullscreen task. Wait for focused Home/stable bounds, consume a single return attempt, and rearm only when Home remains visible beside the restored window. Preserve exit from bounded ZLink and prevent fullscreen relaunch loops when firmware ignores bounds.
+- Replace Camry's app list with an adaptive, scrollable grid of square tiles, each showing the installed Activity icon above its two-line name. Load icons off the UI thread and reuse tile views; keep existing launch and recovery routes.
+- Raise the bottom Dock and collapsed Open Dock control by 24 dp, leaving a 32 dp bottom inset to avoid the head unit's physical bezel.
+- Reduce the window-mode sidebar to a fixed 64 dp rail with icon-only camera, apps, CarMode settings and Android settings actions. Wait for stable window coordinates before launch, avoid rebuilding Home between measuring and launching, and remove adjacent-window placement. Show automatic Dock sessions for Camry camera launches and ZLink covering Home; keep permission/recovery gates, notification close, non-sticky lifetime and full rollback.
+- Expand the experimental ZLink area to the full usable Home height; remove its outline, title/date and two bottom launch buttons. Use square Camry/MODE panel corners and explicitly place Camry Home beneath ZLink launches for Back navigation instead of leaving an older OEM task underneath.
+- Add default-off experimental ZLink window launching from Camry Home, using measured bounds and an Android 10 freeform mode hint, with ordinary launch and immediate disable/rollback controls. Actual head-unit compatibility remains unverified.
+- Add default-off Camry Home within the existing HOME proxy, reusing the dark blue/turquoise UI. Include Android Auto, Camera, installed apps, settings, date and time; keep system navigation available.
+- Add an independent non-sticky manual Dock session with Camera/Music/Home/Apps actions, OEM rollback, position, opacity and a notification close action. Collapse anchors Open Dock at the bottom right; expand restores the configured panel position. Close it on CarMode camera launches, screen-off, configuration changes or lost overlay permission. OEM reverse-camera exclusion still needs head-unit verification; no persistent or automatic Dock is enabled.
+- Add optional foreground-only ZLink startup with a durable Android-boot claim, bounded attempts and cancellation on navigation/settings changes. Document unknown-boot and physical ACC-cycle limitations.
+- Add durable rollback through five distinct Back presses within five seconds and explicit buttons. Preserve MODE settings, keep a recovery path, and expose Android stock-Home selection even after storage failures. Retain OEM ALL_APPS/freeform forwarding as the default path.
+- Add English/Russian settings and regression coverage for rollback persistence, boot-attempt deduplication, Back timing, component boundaries and system navigation restrictions. Device acceptance remains separate from JVM/emulator checks.
 
 ## 0.1.22
 
