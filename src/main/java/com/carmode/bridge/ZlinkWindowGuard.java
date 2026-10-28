@@ -26,18 +26,18 @@ final class ZlinkWindowGuard {
                 || event.getEventType() == AccessibilityEvent.TYPE_WINDOWS_CHANGED) inspect();
     }
     void inspect() {
-        handler.removeCallbacks(check);
-        if (enabled()) handler.postDelayed(check, 250);
+        if (!enabled()) { handler.removeCallbacks(check); policy.interrupted(); return; }
+        if (!handler.hasCallbacks(check)) handler.postDelayed(check, 250);
     }
     private final Runnable check = this::checkWindow;
     private void checkWindow() {
         if (!enabled() || !service.getSystemService(PowerManager.class).isInteractive()
-                || service.getSystemService(KeyguardManager.class).isKeyguardLocked()) return;
+                || service.getSystemService(KeyguardManager.class).isKeyguardLocked()) { policy.interrupted(); return; }
         try {
             for (AccessibilityWindowInfo window : service.getWindows()) {
                 if (window.getType() != AccessibilityWindowInfo.TYPE_APPLICATION || !window.isFocused()) continue;
                 AccessibilityNodeInfo root = window.getRoot();
-                if (root == null) return;
+                if (root == null) { policy.interrupted(); return; }
                 String pkg;
                 try { pkg = root.getPackageName() == null ? "" : root.getPackageName().toString(); }
                 finally { root.recycle(); }
@@ -47,7 +47,7 @@ final class ZlinkWindowGuard {
                     app.log().record("camry_camera_foreground_observed", "package", pkg,
                             "since_android_boot_ms", now, "launch_source", "unknown_from_window_event");
                 }
-                if (!ZlinkRouting.isTarget(pkg, app.prefs().zlinkApp())) return;
+                if (!ZlinkRouting.isTarget(pkg, app.prefs().zlinkApp())) { policy.interrupted(); return; }
                 Rect bounds = new Rect(); window.getBoundsInScreen(bounds);
                 android.util.DisplayMetrics screen = service.getResources().getDisplayMetrics();
                 boolean fullscreen = bounds.width() >= screen.widthPixels - CamryUi.dp(service, 32)
@@ -63,9 +63,12 @@ final class ZlinkWindowGuard {
                     app.log().record("camry_zlink_guard_paused", "reason", "attempt_limit");
                     CamryControl.error(service, R.string.camry_zlink_guard_limit);
                 }
+                // Sample only during this bounded stability check; ordinary window events cannot starve it.
+                if (policy.pending() && !handler.hasCallbacks(check)) handler.postDelayed(check, 250);
                 return;
             }
-        } catch (Exception error) { app.log().record("camry_zlink_guard_error", "error", error.getClass().getSimpleName()); }
+            policy.interrupted();
+        } catch (Exception error) { policy.interrupted(); app.log().record("camry_zlink_guard_error", "error", error.getClass().getSimpleName()); }
     }
     void reset() { close(); policy.reset(); limitReported = false; inspect(); }
     void close() { handler.removeCallbacksAndMessages(null); }

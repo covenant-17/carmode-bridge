@@ -11,6 +11,5 @@ public final class ZlinkReturnPolicy {
         if (!pending) return false;
         armed = false; pending = false; return true;
     }
-    public void boundedVisible() { armed = true; }
     public void reset() { armed = false; pending = false; }
 }

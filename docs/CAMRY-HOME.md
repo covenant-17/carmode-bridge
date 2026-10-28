@@ -1,4 +1,4 @@
-# Camry Home — 0.1.43
+# Camry Home — 0.1.44
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -6,7 +6,7 @@ Camry is an optional mode inside the existing APK. OEM forwarding remains the de
 
 Enable **ZLink only in Home window** in Current settings. This default-off switch also enables Camry Home and experimental window mode. CarMode Apps, MODE and Dock launches of the default ZLink package or the selected Android Auto package route to Home, preserving the requested Activity component. The Home host then measures its target and requests the bounded task. Failed window launches report an error without an ordinary fullscreen fallback while this switch is enabled. Disabling Home/window mode or performing rollback clears the switch.
 
-Native Home entry reopens the window automatically. Returning focus from a bounded ZLink task now requests restoration too. Each return attempt is consumed before launch and is rearmed only after Home remains visible behind the bounded window for 750 ms; firmware repeatedly ignoring bounds cannot cause an endless fullscreen relaunch. Apps/settings navigation suppresses competing restoration. Back on CarMode itself cancels pending restoration and keeps the five-Back escape available. No global Back interception is used. External launchers, ZLink's own maximize controls and firmware decisions cannot be redirected by this app-level switch.
+Native Home entry reopens the window automatically. Returning focus from a ZLink task requests restoration once per launch. Transient focus changes during Android Auto connection do not rearm a consumed return: a lifecycle delay alone cannot confirm actual window bounds. Explicit Home navigation or another launch can start a fresh return session. Apps/settings navigation suppresses competing restoration. Back on CarMode itself cancels pending restoration and keeps the five-Back escape available. No global Back interception is used. External launchers, ZLink's own maximize controls and firmware decisions cannot be redirected by this app-level switch.
 
 The signed APK passed 176 JVM tests and the existing bytecode/signature checks. API 29 emulator checks used a separate schematic ZLink fixture: native Home and bounded Back restored it without a tap; selecting its Apps tile and the Dock Music action returned to Home with the bounded task at `[0,24][1216,672]`. Music uses the same dispatcher as MODE; physical CAN/MODE delivery and real ZLink remain head-unit checks. Five Back presses on the focused CarMode root cleared the feature flags and returned to OEM Fixture. Evidence: `docs/local/camry-0.1.28-home-return.png`, `camry-0.1.28-back-return.png`, `camry-0.1.28-apps-window.png`, `camry-0.1.28-mode-route.png`, `camry-0.1.28-rollback.png`.
 
@@ -26,7 +26,7 @@ The initial layout always contains five cells. Empty positions in that five-cell
 
 The Home-only switch also enables an optional event-driven correction through the existing CarMode Accessibility service. Enable that service manually in Android; Current settings show its availability and a settings entry. Without it, app-level routing still covers only CarMode launches. The service examines the focused application package and window bounds, without reading text or simulating input. A fullscreen selected ZLink package returns through Home and the existing measured launch request. Bounded ZLink, other apps and camera windows are left alone. The observer relies on [interactive Accessibility windows](https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#getWindows()), not global foreground polling.
 
-Corrections are debounced by 250 ms, separated by at least two seconds, and capped at three per Accessibility-service/settings session. Exhaustion reports a message and stops automatic correction; toggling Home-only off/on resets the budget. OEM firmware can still reject or override requested bounds. Disabling Home/window/Home-only or rollback immediately prevents corrections. Accessibility is not required for HCN MODE or ordinary CarMode launches.
+The observer samples at 250 ms during a candidate fullscreen episode and requires three seconds of unchanged fullscreen dimensions. A bounded window, another focused app, a missing root or a locked display interrupts the stability interval. Only one correction is allowed per Accessibility-service/settings session, so auto-connect cannot provoke repeated Home/fullscreen corrections. Exhaustion reports a message and stops automatic correction; toggling Home-only off/on resets the budget. OEM firmware can still reject or override requested bounds. Disabling Home/window/Home-only or rollback immediately prevents corrections. Accessibility is not required for HCN MODE or ordinary CarMode launches.
 
 188 JVM tests and signature checks passed. The API 29 emulator with Accessibility enabled recorded `camry_zlink_external_fullscreen` followed by a measured window request after OS-caption maximization, and `camry_zlink_guard_paused` after repeated forced fullscreen entries exhausted the cap. Real ZLink auto-connect is a separate head-unit check.
 
@@ -51,6 +51,12 @@ The reported Android 10 head-unit crash was `RemoteServiceException: Context.sta
 Dock now promotes in onCreate and at the start of every onStartCommand, before cancellation, permission checks or stopping. A process-local ForegroundStartQueue assigns request tokens and tracks all undelivered starts. Hiding immediately removes the overlay and invalidates visibility requests, but does not stop the service until those commands are acknowledged. Stale delivery cannot cancel a newer session. Failed start calls remove their queue entries. Stopping uses the latest delivered Android startId with [stopSelfResult](https://developer.android.com/reference/android/app/Service#stopSelfResult(int)), rather than unconditional Context.stopService. Non-sticky lifetime, notification Close, manual/automatic policy, screen-off and recovery remain intact.
 
 Validation: 196 JVM tests, bytecode guards and APK signature passed. Six queue regressions cover cancel-before-create, start/hide/start, multiple pending starts, failed old/current starts and duplicate delivery; the service contract requires foreground acknowledgement before rejection. An emulator-only instrumentation APK signed with the local debug key invoked the real service start/hide entry points on the Android main thread: 90 foreground start requests over 30 rounds, immediate cancellations and alternating active restarts. The run passed with the pending queue drained and no crash. Ordinary camera-to-Dock and Apps-sidebar-to-hidden transitions also passed afterward. Test APK removed after the run. Evidence: ignored `docs/local/camry-0.1.42-dock-race-result.log`, `camry-0.1.42-dock-foreground-build.log`, `camry-0.1.42-sidebar-after-race.png`. The exact UIS8581A firmware crash must still be retested on the head unit.
+
+## Connection-time window stabilization (0.1.44 / code 45)
+
+Automatic return no longer rearms from a 750 ms focus/lifecycle assumption. The optional external observer waits for three seconds of unchanged fullscreen dimensions and gets one correction per service/settings session. This limits contention with ZLink before Android Auto connects; it does not detect connection state or guarantee that firmware accepts bounds. Native Home and explicit launch routes still start a new window request.
+
+Validation: 199 JVM tests passed, including transient/fullscreen alternation, changed dimensions, interrupted observation, exhausted correction budget and repeated focus changes after return. APK bytecode and signature checks passed. The API 29 emulator accepted the update and Home opened the ZLink fixture; Accessibility remained disabled during this smoke check. Real ZLink auto-connect requires head-unit validation. Screenshot: `docs/local/camry-0.1.44-home-smoke.png`.
 
 ## Current settings cleanup (0.1.43 / code 44)
 
@@ -182,7 +188,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.43-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.44-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

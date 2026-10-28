@@ -38,7 +38,6 @@ final class CamryHome {
     private boolean appsInFront;
     private final HomeWindowEntry windowEntry = new HomeWindowEntry();
     private final ZlinkReturnPolicy windowReturn = new ZlinkReturnPolicy();
-    private final Handler returnChecks = new Handler(Looper.getMainLooper());
     private String renderedLanguage;
     private int renderId;
     private CamryPinnedApps pinned;
@@ -60,7 +59,7 @@ final class CamryHome {
         reopenOnResume = false;
         appsInFront = false;
         windowEntry.shown(!apps && prefs.camryHome() && renderedWindowMode, externalZlink);
-        windowReturn.reset(); returnChecks.removeCallbacksAndMessages(null);
+        windowReturn.reset();
         if (externalZlink) windowReturn.launched();
         LinearLayout page = CamryUi.page(activity);
         if (apps || renderedWindowMode) page.setPadding(0, 0, 0, 0);
@@ -164,13 +163,13 @@ final class CamryHome {
         CamryUi.iconButton(side, R.string.camry_settings, () -> openSettings(new Intent(activity, MainActivity.class)));
         CamryUi.iconButton(side, R.string.camry_system_settings, () -> openSettings(new Intent(Settings.ACTION_SETTINGS)));
         pinned = new CamryPinnedApps(activity, side, slot -> {
-            windowEntry.cancel(); windowReturn.reset(); returnChecks.removeCallbacksAndMessages(null);
+            windowEntry.cancel(); windowReturn.reset();
             appsInFront = true; reopenOnResume = true;
             CamryAppsActivity.pick(activity, slot);
         });
     }
     void openApps() {
-        windowEntry.cancel(); windowReturn.reset(); returnChecks.removeCallbacksAndMessages(null);
+        windowEntry.cancel(); windowReturn.reset();
         appsInFront = true; reopenOnResume = true;
         CamryAppsActivity.open(activity);
     }
@@ -183,7 +182,7 @@ final class CamryHome {
         try { activity.startActivity(intent); }
         catch (RuntimeException error) { CamryControl.error(activity, R.string.camry_launch_failed); }
     }
-    void back() { externalZlink = false; zlinkLostFocus = false; windowEntry.cancel(); windowReturn.reset(); returnChecks.removeCallbacksAndMessages(null); if (apps) show(false); /* root stays for the five-Back sequence */ }
+    void back() { externalZlink = false; zlinkLostFocus = false; windowEntry.cancel(); windowReturn.reset(); if (apps) show(false); /* root stays for the five-Back sequence */ }
     void resume() {
         if (pinned != null) pinned.refresh();
         stopped = false;
@@ -223,7 +222,7 @@ final class CamryHome {
         DockService.sidebarHidden(activity);
         if (externalZlink && !appsInFront) windowReturn.covered();
     }
-    void close() { closed = true; pause(); DockService.sidebarHidden(activity); windowEntry.cancel(); windowReturn.reset(); returnChecks.removeCallbacksAndMessages(null); worker.shutdownNow(); }
+    void close() { closed = true; pause(); DockService.sidebarHidden(activity); windowEntry.cancel(); windowReturn.reset(); worker.shutdownNow(); }
     private void launchWindow() { launchWindow(false); }
     private void launchWindow(boolean restoring) {
         cancelStartup();
@@ -241,13 +240,6 @@ final class CamryHome {
                     if (!restoring) windowReturn.launched();
                     String destination = prefs.zlinkApp().equals(requestedTargetSelection) ? requestedWindowTarget : null;
                     if (CamryAppWindow.launch(activity, windowArea, destination)) {
-                        returnChecks.postDelayed(() -> {
-                            // Rearm only after Home remained visible beside the restored window.
-                            // If firmware ignores bounds and covers Home again, keep the attempt consumed.
-                            if (!closed && !stopped && !appsInFront && externalZlink && !activity.hasWindowFocus()
-                                    && prefs.camryHome() && prefs.zlinkWindow())
-                                windowReturn.boundedVisible();
-                        }, 750);
                         return;
                     }
                     if (restoring || prefs.zlinkHomeOnly()) { windowReturn.reset(); CamryControl.error(activity, R.string.camry_launch_failed); return; }

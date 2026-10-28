@@ -9,7 +9,7 @@ class ZlinkReturnPolicyTest {
         policy.launched(); policy.returned();
         assertTrue(policy.take(true)); assertFalse(policy.take(true));
         policy.returned(); assertFalse(policy.take(true));
-        policy.boundedVisible(); policy.returned(); assertTrue(policy.take(true));
+        policy.launched(); policy.returned(); assertTrue(policy.take(true));
     }
     @Test void returningFromFullscreenRestoresOnce() {
         ZlinkReturnPolicy policy = new ZlinkReturnPolicy();
@@ -25,10 +25,17 @@ class ZlinkReturnPolicyTest {
         policy.launched(); policy.covered(); assertTrue(policy.take(true));
         policy.covered(); assertFalse(policy.take(true));
     }
-    @Test void confirmedVisibleWindowAllowsAnotherFullscreenRoundTrip() {
+    @Test void explicitLaunchAllowsAnotherFullscreenRoundTrip() {
         ZlinkReturnPolicy policy = new ZlinkReturnPolicy();
         policy.launched(); policy.covered(); assertTrue(policy.take(true));
-        policy.boundedVisible(); policy.covered(); assertTrue(policy.take(true));
+        policy.launched(); policy.covered(); assertTrue(policy.take(true));
+    }
+    @Test void connectionFocusChurnCannotRearmConsumedRestoration() {
+        ZlinkReturnPolicy policy = new ZlinkReturnPolicy();
+        policy.launched(); policy.returned(); assertTrue(policy.take(true));
+        for (int i=0; i<100; i++) {
+            policy.covered(); policy.returned(); assertFalse(policy.take(true));
+        }
     }
     @Test void navigationAndDisablingTheFeatureDiscardPendingReturn() {
         ZlinkReturnPolicy policy = new ZlinkReturnPolicy();

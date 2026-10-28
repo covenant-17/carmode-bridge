@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.44
+
+- Reduce ZLink connection-time window churn: require three seconds of continuously observed fullscreen dimensions before the optional external-window correction. Allow only one correction per service/settings session, including when ZLink rejects the requested bounds. Stop treating a 750 ms focus/lifecycle delay as proof of a bounded window; automatic Home restoration is consumed once per launch and is rearmed by navigation, not transient connection focus changes. Native Home and explicit ZLink launches remain available. Real Android Auto handshake behavior still requires head-unit validation.
+
 ## 0.1.43
 
 - Remove the Accessibility enable button and observer-status prompts from Current Camry settings after the head unit was reported to reset the grant on reboot. Home-only help now describes CarMode routing and firmware limitations without asking for Accessibility. Preserve the existing Archive tools and optional service for users who enable it separately; do not attempt to restore the system grant.
