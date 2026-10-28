@@ -1,4 +1,4 @@
-# Camry Home — 0.1.33
+# Camry Home — 0.1.34
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -18,7 +18,7 @@ The signed APK passed 176 JVM tests and the existing bytecode/signature checks. 
 
 An empty cell opens `CamryAppsActivity` with a private slot-selection extra. The existing adaptive icon/name grid is reused with a selection heading. Selecting an app saves its explicit Activity component and returns Home without launching it. Back cancels the picker; normal Apps entry clears selection mode. Selecting an existing shortcut moves it instead of duplicating it. Unavailable apps retain a fallback icon and can still be moved or removed.
 
-Long-press starts a native global drag with a private MIME type and session token. Cells swap assignments, including empty positions. A temporary 176 by 56 dp top-centre overlay shows the removal target above ZLink using the existing overlay permission; without permission, a message explains how to enable it. It has square corners, the theme accent outline, a cross and Remove label, with a dark fill and turquoise hover state. The non-focusable overlay is registered before starting the drag. Only the initial drag event requires ClipDescription; accepted end events always clean up. Cancel, pause and Home teardown remove the target. Trash clears a preference only, with no package uninstall or app-data operation.
+Long-press starts a native global drag with a private MIME type and session token. Cells swap assignments, including empty positions. A temporary 176 by 56 dp top-centre overlay shows the removal target above ZLink using the existing overlay permission; without permission, a message explains how to enable it. It has square corners, the theme accent outline, a trash icon and Remove label, with transparent fill and a thicker outline while hovering. The non-focusable overlay is registered before starting the drag. Only the initial drag event requires ClipDescription; accepted end events always clean up. Cancel, pause and Home teardown remove the target. Trash clears a preference only, with no package uninstall or app-data operation.
 
 The five `camry_pin_0` through `camry_pin_4` values persist through restart and feature rollback. An assignment update writes all positions in one SharedPreferences edit. Shortcut launches reuse app resolution, ZLink Home-only routing and the camera Dock transition without modifying MODE assignments.
 
@@ -126,7 +126,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.33-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.34-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

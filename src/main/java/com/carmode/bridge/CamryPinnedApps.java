@@ -95,18 +95,23 @@ final class CamryPinnedApps {
     }
     private boolean showTrash() {
         trash = new TextView(activity); trash.setGravity(Gravity.CENTER); trash.setTextColor(CamryUi.ACCENT);
-        trash.setText("\u00d7  " + I18n.text(activity, R.string.camry_pin_remove)); trash.setTextSize(18);
+        android.text.SpannableString label = new android.text.SpannableString("\uFFFC  " + I18n.text(activity, R.string.camry_pin_remove));
+        ShortcutSymbol bin = new ShortcutSymbol(true);
+        int iconSize = CamryUi.dp(activity, 24); bin.setBounds(0, 0, iconSize, iconSize);
+        label.setSpan(new android.text.style.ImageSpan(bin, android.text.style.DynamicDrawableSpan.ALIGN_CENTER),
+                0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        trash.setText(label); trash.setTextSize(18);
         trash.setContentDescription(I18n.text(activity, R.string.camry_pin_remove));
         trash.setPadding(CamryUi.dp(activity, 16), CamryUi.dp(activity, 8), CamryUi.dp(activity, 16), CamryUi.dp(activity, 8));
-        GradientDrawable background = new GradientDrawable(); background.setColor(CamryUi.BACKGROUND);
+        GradientDrawable background = new GradientDrawable(); background.setColor(Color.TRANSPARENT);
         background.setCornerRadius(0);
         background.setStroke(CamryUi.dp(activity, 2), CamryUi.ACCENT); trash.setBackground(background);
         trash.setOnDragListener((v, event) -> {
             if (!ownDrag(event)) return false;
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED: return true;
-                case DragEvent.ACTION_DRAG_ENTERED: background.setColor(0xFF1A4049); return true;
-                case DragEvent.ACTION_DRAG_EXITED: background.setColor(CamryUi.BACKGROUND); return true;
+                case DragEvent.ACTION_DRAG_ENTERED: background.setStroke(CamryUi.dp(activity, 3), CamryUi.ACCENT); return true;
+                case DragEvent.ACTION_DRAG_EXITED: background.setStroke(CamryUi.dp(activity, 2), CamryUi.ACCENT); return true;
                 case DragEvent.ACTION_DROP: prefs.pinApp(dragging, ""); return true;
                 case DragEvent.ACTION_DRAG_ENDED: finishDrag(); return true;
                 default: return true;
@@ -140,7 +145,7 @@ final class CamryPinnedApps {
     private final class ShortcutSymbol extends android.graphics.drawable.Drawable {
         private final boolean remove;
         private final android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
-        ShortcutSymbol(boolean remove) { this.remove = remove; paint.setColor(remove ? Color.WHITE : CamryUi.ACCENT); paint.setStrokeWidth(2); paint.setStyle(android.graphics.Paint.Style.STROKE); }
+        ShortcutSymbol(boolean remove) { this.remove = remove; paint.setColor(CamryUi.ACCENT); paint.setStrokeWidth(2); paint.setStyle(android.graphics.Paint.Style.STROKE); }
         public void draw(android.graphics.Canvas canvas) {
             android.graphics.Rect b = getBounds(); canvas.save(); canvas.translate(b.left, b.top); canvas.scale(b.width()/32f, b.height()/32f);
             if (remove) {
