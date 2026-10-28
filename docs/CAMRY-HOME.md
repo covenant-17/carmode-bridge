@@ -1,4 +1,4 @@
-# Camry Home — 0.1.35
+# Camry Home — 0.1.36
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -17,6 +17,16 @@ Start with five cells. Filling every existing position exposes one additional em
 181 JVM tests and signature checks passed. API 29 emulator verification filled legacy five cells, pinned Calendar into the new sixth cell and Clock into the seventh, and scrolled the shortcuts while the primary buttons stayed fixed. Evidence: `docs/local/camry-0.1.35-sixth-cell.png` and `camry-0.1.35-scrolled-pins.png`.
 
 ## Components and lifetime
+
+### Shared Apps sidebar and Dock visibility (0.1.36 / code 37)
+
+Home and the private fullscreen Apps task use the same sidebar builder, primary controls, persisted shortcut count and app assignments. The grid occupies the remaining width, with an independent scroll area. Selection mode also retains the sidebar; only grid selection pins an app, while an existing shortcut still launches normally.
+
+`SidebarVisibility` tracks visible Home/Apps hosts as a set. A paused Home behind freeform ZLink remains registered until stopped, keeping Dock hidden while the sidebar is visible. Returning to either host hides manual and automatic Dock sessions. Stopping or destroying the final host schedules a 250 ms visibility recheck and an automatic Dock request, independently of the destination package. Overlapping lifecycle callbacks during Home/Apps transitions do not create duplicate counts or a competing overlay. A normal settings Activity also schedules the recheck when opened directly.
+
+Automatic sessions require Camry mode, overlay permission, an interactive unlocked display and no crash recovery. The manual switch remains independent. Screen-off closes the service; a process-local screen-on/unlock receiver can request it again if no sidebar is visible. This is a lifecycle signal, with no global foreground-app polling, Accessibility dependency or Dock boot receiver. Process death and OEM camera surfaces retain platform limitations. Rollback clears Camry mode and prevents later pending requests from reopening Dock.
+
+184 JVM tests and APK signature checks passed. Emulator checks verified the shared Apps rail, Dock over Android Settings, CarMode settings and Contacts, no Dock with the visible Home/Apps sidebar, Dock over maximized ZLink, and restoring Dock after sleep/wake. A full emulator Android reboot preserved every saved shortcut key, position and count: the eight persisted pin/count keys matched exactly before and after reboot. The renderer loaded the installed icons again. Evidence: `docs/local/camry-0.1.36-apps-sidebar.png`, `camry-0.1.36-system-settings-dock.png`, `camry-0.1.36-contacts-dock.png`, `camry-0.1.36-fullscreen-dock.png`, `camry-0.1.36-after-reboot.png`. Subsequent interactive changes on the user's emulator are independent of this saved before/after snapshot.
 
 ### Pinned apps (0.1.31 / code 32)
 
@@ -132,7 +142,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.35-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.36-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

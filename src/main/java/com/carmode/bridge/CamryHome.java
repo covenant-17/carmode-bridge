@@ -63,22 +63,29 @@ final class CamryHome {
         windowReturn.reset(); returnChecks.removeCallbacksAndMessages(null);
         if (externalZlink) windowReturn.launched();
         LinearLayout page = CamryUi.page(activity);
-        if (renderedWindowMode && !apps) page.setPadding(0, 0, 0, 0);
+        if (apps || renderedWindowMode) page.setPadding(0, 0, 0, 0);
         if (apps || renderedWindowMode) activity.setContentView(page);
         else {
             ScrollView scroll = new ScrollView(activity); scroll.setFillViewport(true); scroll.addView(page);
             activity.setContentView(scroll);
         }
         if (apps) {
+            LinearLayout body = new LinearLayout(activity);
+            page.addView(body, new LinearLayout.LayoutParams(-1, 0, 1));
+            LinearLayout appContent = new LinearLayout(activity); appContent.setOrientation(LinearLayout.VERTICAL);
+            int padding = CamryUi.dp(activity, 16); appContent.setPadding(padding, padding, padding, padding);
+            body.addView(appContent, new LinearLayout.LayoutParams(0, -1, 1));
+            addSidebar(body);
             if (activity instanceof CamryAppsActivity && ((CamryAppsActivity) activity).picking())
-                CamryUi.text(page, I18n.text(activity, R.string.camry_pin_choose), 22);
-            CamryUi.button(page, R.string.camry_home, () -> {
+                CamryUi.text(appContent, I18n.text(activity, R.string.camry_pin_choose), 22);
+            CamryUi.button(appContent, R.string.camry_home, () -> {
                 if (activity instanceof CamryAppsActivity) ((CamryAppsActivity) activity).goHome();
                 else show(false);
             });
-            TextView loading = CamryUi.text(page, I18n.text(activity, R.string.camry_loading), 18);
+            TextView loading = CamryUi.text(appContent, I18n.text(activity, R.string.camry_loading), 18);
             CamryAppGrid grid = new CamryAppGrid(activity);
-            page.addView(grid, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
+            appContent.addView(grid, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
+            CamryUi.button(appContent, R.string.camry_restore, () -> CamryControl.restore(activity));
             worker.execute(() -> {
                 try {
                     List<AppResolver.Entry> entries = AppResolver.list(activity, false);
@@ -89,8 +96,8 @@ final class CamryHome {
                     }
                     activity.runOnUiThread(() -> {
                         if (closed || activity.isFinishing() || generation != renderId) return;
-                        page.removeView(loading);
-                        if (entries.isEmpty()) CamryUi.text(page, I18n.text(activity, R.string.camry_no_apps), 18);
+                        appContent.removeView(loading);
+                        if (entries.isEmpty()) CamryUi.text(appContent, I18n.text(activity, R.string.camry_no_apps), 18);
                         grid.apps(entries, icons, entry -> {
                             if (activity instanceof CamryAppsActivity && ((CamryAppsActivity) activity).picking()) {
                                 ((CamryAppsActivity) activity).selected(entry); return;
@@ -132,7 +139,7 @@ final class CamryHome {
             settings.setLayoutParams(new LinearLayout.LayoutParams(0, CamryUi.dp(activity, 64), 1));
             CamryUi.button(page, R.string.camry_show_dock, () -> DockService.request(activity));
         }
-        if (apps || !renderedWindowMode) CamryUi.button(page, R.string.camry_restore, () -> CamryControl.restore(activity));
+        if (!apps && !renderedWindowMode) CamryUi.button(page, R.string.camry_restore, () -> CamryControl.restore(activity));
         if (windowArea != null) windowArea.post(this::focused);
     }
     private void showWindow(LinearLayout page) {
@@ -146,6 +153,9 @@ final class CamryHome {
         windowArea.setGravity(Gravity.CENTER);
         windowArea.setFocusable(true); windowArea.setOnClickListener(v -> launchWindow());
         content.addView(windowArea, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
+        addSidebar(body);
+    }
+    private void addSidebar(LinearLayout body) {
         LinearLayout side = new LinearLayout(activity); side.setOrientation(LinearLayout.VERTICAL);
         int inset = CamryUi.dp(activity, 6); side.setPadding(inset, inset, inset, inset);
         body.addView(side, new LinearLayout.LayoutParams(CamryUi.dp(activity, 64), LinearLayout.LayoutParams.MATCH_PARENT));
@@ -178,7 +188,7 @@ final class CamryHome {
         if (pinned != null) pinned.refresh();
         stopped = false;
         appsInFront = false;
-        DockService.homeVisible(activity);
+        DockService.sidebarShown(activity);
         if (!prefs.language().equals(renderedLanguage) || renderedWindowMode != prefs.zlinkWindow()) show(apps);
         if (reopenOnResume) {
             reopenOnResume = false;
@@ -210,9 +220,10 @@ final class CamryHome {
     private void releaseStartup() { if (pendingOwner == this) pendingOwner = null; }
     void stopped() {
         stopped = true;
-        if (externalZlink && !appsInFront) { windowReturn.covered(); DockService.transition(activity); }
+        DockService.sidebarHidden(activity);
+        if (externalZlink && !appsInFront) windowReturn.covered();
     }
-    void close() { closed = true; pause(); windowEntry.cancel(); windowReturn.reset(); returnChecks.removeCallbacksAndMessages(null); worker.shutdownNow(); }
+    void close() { closed = true; pause(); DockService.sidebarHidden(activity); windowEntry.cancel(); windowReturn.reset(); returnChecks.removeCallbacksAndMessages(null); worker.shutdownNow(); }
     private void launchWindow() { launchWindow(false); }
     private void launchWindow(boolean restoring) {
         cancelStartup();

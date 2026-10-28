@@ -56,9 +56,10 @@ public final class CamryAppsActivity extends CamryActivity {
             finish();
         } catch (RuntimeException failure) { CamryControl.error(this, R.string.camry_launch_failed); }
     }
-    @Override protected void normalBack() { DockService.transition(this); finish(); }
+    @Override protected void normalBack() { finish(); }
     @Override protected void onResume() { super.onResume(); if (home != null) home.resume(); }
     @Override protected void onPause() { if (home != null) home.pause(); super.onPause(); }
+    @Override protected void onStop() { super.onStop(); if (home != null) home.stopped(); }
     @Override protected void onDestroy() { clearCamry(); super.onDestroy(); }
     void clearCamry() { if (home != null) { home.close(); home = null; } }
 }

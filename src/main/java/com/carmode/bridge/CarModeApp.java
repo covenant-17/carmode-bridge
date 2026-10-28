@@ -14,6 +14,7 @@ public final class CarModeApp extends Application {
                 || "camry_zlink_window".equals(key) || "camry_zlink_home_only".equals(key)) CamryHome.cancelStartup();
         if ("camry_home".equals(key) || "camry_dock".equals(key) || "camry_dock_position".equals(key) || "camry_dock_opacity".equals(key) || "language".equals(key))
             if (DockService.active() != null) DockService.active().settingsChanged();
+        if ("camry_home".equals(key)) DockService.sidebarAbsent(this);
         if (musicHttp != null && ("enabled".equals(key) || "auto_start".equals(key)
                 || "hcn_mode".equals(key) || "music_http_enabled".equals(key) || "music_http_url".equals(key)))
             musicHttp.cancel("settings_changed");
@@ -53,6 +54,25 @@ public final class CarModeApp extends Application {
         diagnostics = new DiagnosticScenarios(this);
         musicHttp = new MusicHttpAction(this);
         prefs.data.registerOnSharedPreferenceChangeListener(runtimeSettings);
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            public void onActivityResumed(android.app.Activity activity) {
+                if (!(activity instanceof HomeProxyActivity) && !(activity instanceof CamryPreviewActivity)
+                        && !(activity instanceof CamryAppsActivity)) DockService.sidebarAbsent(activity);
+            }
+            public void onActivityCreated(android.app.Activity activity, android.os.Bundle state) {}
+            public void onActivityStarted(android.app.Activity activity) {}
+            public void onActivityPaused(android.app.Activity activity) {}
+            public void onActivityStopped(android.app.Activity activity) {}
+            public void onActivitySaveInstanceState(android.app.Activity activity, android.os.Bundle state) {}
+            public void onActivityDestroyed(android.app.Activity activity) {}
+        });
+        android.content.IntentFilter wake = new android.content.IntentFilter(android.content.Intent.ACTION_SCREEN_ON);
+        wake.addAction(android.content.Intent.ACTION_USER_PRESENT);
+        android.content.BroadcastReceiver dockWake = new android.content.BroadcastReceiver() {
+            public void onReceive(android.content.Context context, android.content.Intent intent) { DockService.sidebarAbsent(context); }
+        };
+        if (android.os.Build.VERSION.SDK_INT >= 33) registerReceiver(dockWake, wake, android.content.Context.RECEIVER_NOT_EXPORTED);
+        else registerReceiver(dockWake, wake);
         log.record("process_started", "pid", android.os.Process.myPid(), "previous_accessibility_lifecycle", ServiceEvidence.previous(this),
                 "service_state", ServiceEvidence.capture(this), "previous_exit_reason", "unknown_unless_crash_report_present",
                 "device_protected_storage", isDeviceProtectedStorage(), "user_unlocked", BootStorage.unlocked(this));

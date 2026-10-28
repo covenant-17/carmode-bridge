@@ -10,6 +10,8 @@ import com.carmode.bridge.core.DockPolicy;
 public final class DockService extends Service {
     private static DockService instance;
     private static boolean automaticRequested;
+    private static final com.carmode.bridge.core.SidebarVisibility SIDEBARS = new com.carmode.bridge.core.SidebarVisibility();
+    private static final Handler VISIBILITY = new Handler(Looper.getMainLooper());
     private boolean automatic;
     private DockController dock;
     private boolean registered;
@@ -20,20 +22,32 @@ public final class DockService extends Service {
         if (instance != null && instance.dock != null) instance.dock.close();
         context.stopService(new Intent(context, DockService.class));
     }
-    static void homeVisible(Context context) {
-        automaticRequested = false;
-        if (instance != null && instance.automatic) hide(context);
+    static void sidebarShown(Activity host) {
+        SIDEBARS.shown(host); VISIBILITY.removeCallbacksAndMessages(null);
+        hide(host);
+    }
+    static void sidebarHidden(Activity host) {
+        if (SIDEBARS.hidden(host)) sidebarAbsent(host);
+    }
+    static void sidebarAbsent(Context context) {
+        Context appContext = context.getApplicationContext();
+        VISIBILITY.removeCallbacksAndMessages(null);
+        VISIBILITY.postDelayed(() -> { if (!SIDEBARS.visible()) transition(appContext); }, 250);
     }
     static void transition(Context context) {
         CarModeApp app = CarModeApp.from(context);
-        if (!DockPolicy.allowed(true, app.prefs().camryHome(), app.prefs().dockEnabled(), app.recovering(), Settings.canDrawOverlays(context))) return;
+        if (app.recovering() || app.prefs() == null || !DockPolicy.allowed(true, app.prefs().camryHome(), app.prefs().dockEnabled(),
+                false, Settings.canDrawOverlays(context), SIDEBARS.visible())) return;
+        if (!context.getSystemService(PowerManager.class).isInteractive()
+                || context.getSystemService(KeyguardManager.class).isKeyguardLocked()) return;
         automaticRequested = true;
         try { context.startForegroundService(new Intent(context, DockService.class).setAction("transition")); }
         catch (RuntimeException error) { automaticRequested = false; app.log().record("camry_dock_transition_failed", "error", error.toString()); }
     }
     private boolean allowed() {
         CarModeApp app = CarModeApp.from(this);
-        return DockPolicy.allowed(automatic, app.prefs().camryHome(), app.prefs().dockEnabled(), app.recovering(), Settings.canDrawOverlays(this));
+        return app.prefs() != null && DockPolicy.allowed(automatic, app.prefs().camryHome(), app.prefs().dockEnabled(),
+                app.recovering(), Settings.canDrawOverlays(this), SIDEBARS.visible());
     }
     static void request(Activity activity) {
         if (!new Prefs(activity).dockEnabled()) { CamryControl.error(activity, R.string.camry_dock_disabled); return; }

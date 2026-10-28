@@ -74,7 +74,7 @@ The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`. Override it if necessary:
 mvn -B clean verify '-Dandroid.sdk=D:/Android/Sdk'
 ```
 
-Output: `target/carmode-bridge-0.1.35-debug.apk`.
+Output: `target/carmode-bridge-0.1.36-debug.apk`.
 
 - `mvn test`: Java unit tests and compiler-stub guard regressions, without APK packaging.
 - `mvn package`: tests and APK compilation, alignment and signature validation.
@@ -111,7 +111,7 @@ For the alternative learned-key route, disable HCN, grant Accessibility manually
 
 ## Camry Home, Dock and ZLink startup
 
-Window-mode Home has an expandable app shortcut list beneath the right-hand controls, separated by a divider. Tap an empty plus to select an app in the existing tile grid; selection pins it without launching it. Filled cells show only the app icon and launch on tap, including ZLink Home-only routing. Hold and drag to swap positions or move into an empty cell. Drop on the temporary top-centre trash to remove the shortcut, preserving the installed app; drop elsewhere to cancel. The trash needs the existing display-over-other-apps permission so it appears above ZLink. Assignments persist across restarts and Camry rollback.
+Window-mode Home and Apps share the same right-hand controls and expandable shortcuts. The initial five cells gain an additional empty cell whenever all existing positions are filled. Only shortcuts scroll; the primary controls remain fixed and no scrollbar is drawn. Tap an empty plus to select an app in the existing tile grid; selection pins it without launching it. Filled cells show only the app icon and launch on tap, including ZLink Home-only routing. Hold and drag to swap positions or move into an empty cell. Drop on the temporary top-centre trash to remove the shortcut, preserving the installed app; drop elsewhere to cancel. The trash needs the existing display-over-other-apps permission so it appears above ZLink. Assignments persist across restarts and Camry rollback.
 
 Install 0.1.23 over the existing app using the same signing key; do not uninstall or clear data. All new features default to off. Existing MODE assignments and OEM Home forwarding are preserved.
 
@@ -125,7 +125,7 @@ A synchronous persisted claim permits at most one automatic attempt for a readab
 
 **Allow CarMode Dock** enables manual sessions; **Show Dock for this session** starts one after an explicit camera warning. Closing settings keeps the session alive. Hide collapses to an Open Dock button anchored in the selected one of four corners; expanding returns to a horizontal bottom-centred panel raised 32 dp above the usable bottom edge. Close Dock or the notification action removes it. Position and opacity are adjustable. The bounded overlay does not take key focus or outside touches and fits within the system-managed usable area. Apps lists installed apps; it does not replace system Recents.
 
-Reverse-gear/camera detection is unverified. There is no automatic persistent Dock or automatic Dock restoration on boot/process restart. A camera launched through CarMode, screen-off, display configuration change, lost overlay permission or explicit rollback closes the session. An OEM-triggered reverse camera may not notify CarMode: use this manual Dock only for parked testing until camera exclusion is verified on the head unit. No mandatory Accessibility or OEM/MCU modification is added.
+In Camry mode, Dock appears automatically when neither Home nor Apps has a visible sidebar, including over settings and external apps. A sidebar remaining visible behind freeform ZLink suppresses Dock; returning to Home or Apps removes it. Transitions between own screens are debounced. Overlay permission and a healthy app state are required; the manual-session switch is independent. Screen-off, lost permission or rollback closes Dock. Wake/unlock rechecks sidebar visibility while the process is alive. Dock is non-sticky, with no boot receiver or global foreground-app polling. Native OEM camera surfaces can still hide overlays or fail to notify normal Activity visibility changes; real head-unit acceptance is separate. No mandatory Accessibility or OEM/MCU modification is added.
 
 ## Music HTTP option
 

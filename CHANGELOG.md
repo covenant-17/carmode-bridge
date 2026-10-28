@@ -10,6 +10,12 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.36
+
+- Show the same right-hand controls and persistent expandable shortcuts beside the Apps grid, including its selection mode. Keep grid and shortcuts independently scrollable and reuse ZLink routing.
+- Derive automatic Dock visibility from visible Home/Apps sidebar hosts rather than specific camera/ZLink launches. Show Dock after the final sidebar is hidden, including settings and other external apps; suppress it while a sidebar remains visible behind freeform ZLink. Debounce transitions between own screens and handle screen-on/unlock while the process is alive, retaining permission/recovery, screen-off and rollback gates. Hide manual sessions on sidebar screens too.
+- Validate 184 JVM tests, APK signature and emulator Home/Apps/settings/external-app/fullscreen transitions. A complete Android reboot preserved every persisted shortcut assignment and slot count; recheck Dock after sleep/wake.
+
 ## 0.1.35
 
 - Grow pinned apps beyond five cells: when every existing cell is filled, expose one additional empty cell. Preserve original slot keys and migrate five filled legacy cells without losing assignments. Reuse holes, retain positions after deletion, and persist the slot count and assignments across reboot/rollback.
