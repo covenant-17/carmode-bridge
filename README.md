@@ -2,7 +2,7 @@
 
 A native Android app that replaces the stock MODE menu on aftermarket head units with HCN OEM software, tested on **UIS8581A running Android 10 / API 29**. It receives steering-wheel MODE presses through HCN OEM broadcasts rather than relying on standard Android key input. This input path works **without Accessibility access or root**, and leaves system APKs unchanged.
 
-Current application version: **0.1.23**, Android versionCode **24**.
+Current application version: **0.1.46**, Android versionCode **47**.
 
 ## Current behaviour
 
@@ -16,7 +16,7 @@ Current application version: **0.1.23**, Android versionCode **24**.
 - **Current** contains operational settings; **Archive** contains legacy input tests, detailed diagnostics and APK export tools. Help is available through inline ⓘ buttons: tap for a non-blocking Toast or long-press for a tooltip.
 - Diagnostic JSON export, selectable/copyable logs and persistent Java crash reports.
 - Successful MODE launches are silent; launch failures still display an error.
-- Optional **Camry Home** uses the existing dark blue / turquoise UI with square panels, Android Auto, Camera, apps and settings. Experimental window mode reserves the full usable height for ZLink, without a heading, date, surrounding outline or bottom launch buttons. OEM Home forwarding remains the default.
+- Optional **Camry Home** uses the existing dark blue / turquoise UI with square panels, Android Auto, Camera, apps and settings. Experimental window mode reserves the full usable height for ZLink or the configured camera app, without a heading, date, surrounding outline or bottom launch buttons. Camera selections through CarMode use that area and retain the sidebar; its first button switches back to ZLink while cameras are shown. Native Home returns to ZLink. External/reverse-camera activation remains controlled by the firmware; actual camera video scaling and task resizing require device verification. OEM Home forwarding remains the default.
 - An independent **Dock session** offers Camera, Music, Home, Apps, Restore OEM and Hide. Camry mode also shows it after camera launches through CarMode and when ZLink covers Home; manual sessions have a separate switch. Music uses the existing MODE Music assignment (ZLink by default), including optional Music HTTP. It is off by default and does not require Accessibility.
 - Five separate Back presses within five seconds on Camry screens restore the previous CarMode behaviour, preserving MODE settings. System Back, Home and Recents are never hidden or intercepted by Camry.
 
@@ -74,7 +74,7 @@ The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`. Override it if necessary:
 mvn -B clean verify '-Dandroid.sdk=D:/Android/Sdk'
 ```
 
-Output: `target/carmode-bridge-0.1.45-debug.apk`.
+Output: `target/carmode-bridge-0.1.46-debug.apk`.
 
 - `mvn test`: Java unit tests and compiler-stub guard regressions, without APK packaging.
 - `mvn package`: tests and APK compilation, alignment and signature validation.

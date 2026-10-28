@@ -223,6 +223,7 @@
     <string name="camry_zlink_home_only">ZLink only in Home window</string>
     <string name="camry_zlink_home_only_hint">Enables Camry Home and window mode. ZLink launches through CarMode Apps, MODE and Dock go to Home. Independent ZLink auto-connect and window bounds depend on head-unit firmware.</string>
     <string name="camry_zlink_guard_limit">ZLink repeatedly opened fullscreen. Automatic correction paused to avoid a launch loop. Toggle ZLink only in Home off and on to retry.</string>
+    <string name="camry_camera_window_area">360 Camera window\nTap to open</string>
     <string name="camry_pin_choose">Choose an app to pin</string>
     <string name="camry_pin_add">Pin an app</string>
     <string name="camry_pin_remove">Remove</string>

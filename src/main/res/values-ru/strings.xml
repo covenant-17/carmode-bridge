@@ -223,6 +223,7 @@
     <string name="camry_zlink_home_only">ZLink только в окне Home</string>
     <string name="camry_zlink_home_only_hint">Включает Camry Home и оконный режим. Запуски ZLink через Apps, MODE и Dock в CarMode ведут на Home. Самостоятельный автоконнект ZLink и границы окна зависят от прошивки магнитолы.</string>
     <string name="camry_zlink_guard_limit">ZLink повторно открывается на весь экран. Автокоррекция остановлена, чтобы избежать цикла запусков. Для повтора выключите и включите «ZLink только в окне Home».</string>
+    <string name="camry_camera_window_area">Окно камер 360\nНажмите, чтобы открыть</string>
     <string name="camry_pin_choose">Выберите приложение для закрепления</string>
     <string name="camry_pin_add">Закрепить приложение</string>
     <string name="camry_pin_remove">Удалить</string>

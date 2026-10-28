@@ -33,6 +33,7 @@ final class CamryHome {
     private boolean zlinkLostFocus;
     private String requestedWindowTarget;
     private String requestedTargetSelection;
+    private boolean cameraWindow;
     private boolean stopped;
     private boolean reopenOnResume;
     private boolean appsInFront;
@@ -51,9 +52,18 @@ final class CamryHome {
         activity.getIntent().removeExtra("camry_external_zlink");
         String requested = activity.getIntent().getStringExtra("camry_window_target");
         activity.getIntent().removeExtra("camry_window_target");
+        cameraWindow = false;
+        requestedWindowTarget = null;
+        requestedTargetSelection = null;
         if (requested != null && com.carmode.bridge.core.ZlinkRouting.isTarget(
                 requested.contains("/") ? requested.substring(0, requested.indexOf('/')) : requested, prefs.zlinkApp())) {
             requestedWindowTarget = requested; requestedTargetSelection = prefs.zlinkApp();
+        } else if (requested != null && com.carmode.bridge.core.CameraRouting.isTarget(
+                requested.contains("/") ? requested.substring(0, requested.indexOf('/')) : requested,
+                prefs.component(com.carmode.bridge.core.ActionDispatcher.Action.CAMERAS))) {
+            cameraWindow = true;
+            requestedWindowTarget = requested;
+            requestedTargetSelection = prefs.component(com.carmode.bridge.core.ActionDispatcher.Action.CAMERAS);
         }
         zlinkLostFocus = false;
         reopenOnResume = false;
@@ -105,10 +115,11 @@ final class CamryHome {
                             DockService.hide(activity);
                             try {
                                 Intent target = AppResolver.resolve(activity, entry.component.flattenToString());
-                                if (CamryNavigation.isZlinkTarget(activity, target))
+                                boolean camera = CamryNavigation.cameraWindow(activity, target);
+                                if (CamryNavigation.isZlinkTarget(activity, target) || camera)
                                     CamryNavigation.launch(activity, target, null);
                                 else activity.startActivity(target);
-                                if ("ivicar.cn.ivicaravm".equals(entry.component.getPackageName())) DockService.transition(activity);
+                                if ("ivicar.cn.ivicaravm".equals(entry.component.getPackageName()) && !camera) DockService.transition(activity);
                             }
                             catch (Exception error) { CamryControl.error(activity, R.string.camry_launch_failed); }
                         });
@@ -147,7 +158,7 @@ final class CamryHome {
         LinearLayout content = new LinearLayout(activity); content.setOrientation(LinearLayout.VERTICAL);
         body.addView(content, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
         windowArea = new TextView(activity);
-        windowArea.setText(I18n.text(activity, R.string.camry_window_area));
+        windowArea.setText(I18n.text(activity, cameraWindow ? R.string.camry_camera_window_area : R.string.camry_window_area));
         windowArea.setTextSize(21); windowArea.setTextColor(CamryUi.ACCENT);
         windowArea.setGravity(Gravity.CENTER);
         windowArea.setFocusable(true); windowArea.setOnClickListener(v -> launchWindow());
@@ -158,7 +169,8 @@ final class CamryHome {
         LinearLayout side = new LinearLayout(activity); side.setOrientation(LinearLayout.VERTICAL);
         int inset = CamryUi.dp(activity, 6); side.setPadding(inset, inset, inset, inset);
         body.addView(side, new LinearLayout.LayoutParams(CamryUi.dp(activity, 64), LinearLayout.LayoutParams.MATCH_PARENT));
-        CamryUi.iconButton(side, R.string.camera, this::openCamera);
+        if (cameraWindow) CamryUi.iconButton(side, R.string.camry_music, () -> launchZlink(activity));
+        else CamryUi.iconButton(side, R.string.camera, this::openCamera);
         CamryUi.iconButton(side, R.string.camry_apps, this::openApps);
         CamryUi.iconButton(side, R.string.camry_settings, () -> openSettings(new Intent(activity, MainActivity.class)));
         CamryUi.iconButton(side, R.string.camry_system_settings, () -> openSettings(new Intent(Settings.ACTION_SETTINGS)));
@@ -201,10 +213,10 @@ final class CamryHome {
         boolean eligible = !apps && prefs.camryHome() && prefs.zlinkWindow() && !CarModeApp.from(activity).recovering();
         if (windowReturn.take(eligible)) {
             windowEntry.cancel();
-            CarModeApp.from(activity).log().record("camry_zlink_return_window", "reason", "fullscreen_return", "foreground_confirmed", false);
+            CarModeApp.from(activity).log().record(cameraWindow ? "camry_camera_return_window" : "camry_zlink_return_window", "reason", "fullscreen_return", "foreground_confirmed", false);
             launchWindow(true);
         } else if (windowEntry.take(eligible)) {
-            CarModeApp.from(activity).log().record("camry_zlink_home_window", "reason", "home_opened", "foreground_confirmed", false);
+            CarModeApp.from(activity).log().record(cameraWindow ? "camry_camera_home_window" : "camry_zlink_home_window", "reason", "home_opened", "foreground_confirmed", false);
             launchWindow();
         }
     }
@@ -238,11 +250,14 @@ final class CamryHome {
                     releaseStartup();
                     externalZlink = true;
                     if (!restoring) windowReturn.launched();
-                    String destination = prefs.zlinkApp().equals(requestedTargetSelection) ? requestedWindowTarget : null;
+                    String selection = cameraWindow ? prefs.component(com.carmode.bridge.core.ActionDispatcher.Action.CAMERAS) : prefs.zlinkApp();
+                    String destination = selection.equals(requestedTargetSelection) ? requestedWindowTarget : null;
+                    if (cameraWindow && destination == null)
+                        destination = com.carmode.bridge.core.ActionDispatcher.target(com.carmode.bridge.core.ActionDispatcher.Action.CAMERAS, selection);
                     if (CamryAppWindow.launch(activity, windowArea, destination)) {
                         return;
                     }
-                    if (restoring || prefs.zlinkHomeOnly()) { windowReturn.reset(); CamryControl.error(activity, R.string.camry_launch_failed); return; }
+                    if (restoring || prefs.zlinkHomeOnly() || cameraWindow) { windowReturn.reset(); CamryControl.error(activity, R.string.camry_launch_failed); return; }
                     CamryControl.error(activity, R.string.camry_window_fallback); launchZlink(activity); return;
                 }
                 previous[0] = current;

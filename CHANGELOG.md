@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.46
+
+- Open the configured camera app in the Home content rectangle when Camry Home and window mode are enabled. Route camera selections from the Home rail, Dock, MODE, Apps and pinned shortcuts through the existing measured one-shot window launch. While cameras occupy Home, the rail's first button opens ZLink; native Home returns to the default ZLink view. Retain the configured camera assignment and ordinary fullscreen launch when Home/window mode is off. Do not intercept external camera launches or native reverse-camera activation, and do not add camera fullscreen correction loops. Camera bounds/video scaling remain firmware-dependent.
+
 ## 0.1.45
 
 - Route Dock Home through the existing HOME Activity when Camry mode is enabled, matching the native Home button and issuing a fresh one-shot ZLink window request. Avoid opening a competing preview controller/task that can cancel or displace window restoration. Keep preview access when Camry mode is off and preserve the separate Restore OEM path. Retain the connection-time correction limits from 0.1.44.

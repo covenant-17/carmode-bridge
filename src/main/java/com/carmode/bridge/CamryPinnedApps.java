@@ -84,9 +84,10 @@ final class CamryPinnedApps {
                 if (component.isEmpty()) { choose.accept(slot); return; }
                 try {
                     Intent target = AppResolver.resolve(activity, component);
-                    if (CamryNavigation.isZlinkTarget(activity, target)) CamryNavigation.launch(activity, target, null);
+                    boolean cameraWindow = CamryNavigation.cameraWindow(activity, target);
+                    if (CamryNavigation.isZlinkTarget(activity, target) || cameraWindow) CamryNavigation.launch(activity, target, null);
                     else activity.startActivity(target);
-                    if ("ivicar.cn.ivicaravm".equals(target.getComponent().getPackageName())) DockService.transition(activity);
+                    if ("ivicar.cn.ivicaravm".equals(target.getComponent().getPackageName()) && !cameraWindow) DockService.transition(activity);
                 } catch (Exception unavailable) { CamryControl.error(activity, R.string.camry_pin_unavailable); }
             });
             cell.setOnLongClickListener(v -> {
