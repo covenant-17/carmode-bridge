@@ -11,7 +11,7 @@ public final class HcnModeRouter {
     }
     public static final class Input {
         public String action;
-        public boolean ordered, noAbort, malformed, hasKey;
+        public boolean ordered, noAbort, malformed, hasKey, initialSticky;
         public int keyAction, repeatCount, keyCode, deviceId;
         public long downTime;
     }
@@ -35,6 +35,7 @@ public final class HcnModeRouter {
     public Result route(Input input, State state, Port port) {
         if (AUXILIARY.equals(input.action)) return pass("auxiliary_only");
         if (!MODE.equals(input.action)) return pass("unknown_action");
+        if (input.initialSticky) return pass("initial_sticky_replay");
         if (!state.enabled) { reset(); return pass("disabled"); }
         if (!state.ready) { reset(); return pass("not_ready"); }
         if (state.scenario) { reset(); return pass("diagnostic_scenario"); }

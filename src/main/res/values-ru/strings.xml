@@ -230,4 +230,5 @@
     <string name="camry_pin_remove">Удалить</string>
     <string name="camry_pin_unavailable">Приложение недоступно. Удерживайте, чтобы убрать или переместить ярлык.</string>
     <string name="camry_pin_drag_permission">Разрешите показ поверх приложений, чтобы корзина отображалась над ZLink.</string>
+    <string name="hcn_reason_sticky">Старое сохранённое событие MODE пропущено; нового нажатия нет</string>
 </resources>

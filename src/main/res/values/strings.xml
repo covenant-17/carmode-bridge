@@ -230,4 +230,5 @@
     <string name="camry_pin_remove">Remove</string>
     <string name="camry_pin_unavailable">App unavailable. Hold to remove or move its shortcut.</string>
     <string name="camry_pin_drag_permission">Allow display over other apps to show the shortcut trash above ZLink.</string>
+    <string name="hcn_reason_sticky">Saved MODE event ignored; no new press</string>
 </resources>

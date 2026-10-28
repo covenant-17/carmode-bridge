@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.40
+
+- Ignore initial sticky MODE replays delivered when the runtime receiver registers. A saved boot-time broadcast cannot open the menu and time out to its default Camera choice. Fresh MODE clicks and the manifest cold-wake handoff remain unchanged. Log the initial-sticky flag and show its reason in HCN status. This closes a plausible internal path; it does not establish the cause of the reported head-unit camera launch or suppress native/reverse-camera startup.
+
 ## 0.1.39
 
 - Extend Home-only routing to externally launched fullscreen ZLink when the user enables the existing CarMode Accessibility service. Observe only focused application package/bounds, debounce window events, and return via the existing measured Home launch. Bounded ZLink, Apps, cameras and unrelated packages are left alone. Limit correction to three attempts per service/settings session with a two-second cooldown; report exhaustion instead of looping when firmware refuses bounds.

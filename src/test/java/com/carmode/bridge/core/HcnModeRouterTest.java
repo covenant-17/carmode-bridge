@@ -43,6 +43,12 @@ class HcnModeRouterTest {
     private void key() { input.hasKey = true; input.keyCode = 66; input.deviceId = 2; input.downTime = 100; }
 
     @Test void defaultOffPreservesStock() { state.enabled = false; pass("disabled"); }
+    @Test void oldStickyReplayCannotOpenMenuAndTimeOutToCamera() {
+        input.initialSticky = true; pass("initial_sticky_replay");
+        assertFalse(port.menu.isOpen()); assertEquals(-1, port.menu.poll(10000));
+        input.initialSticky = false;
+        assertTrue(route().advanced); assertEquals(1, port.presses);
+    }
     @Test void disabledOrNotManuallyActivatedPreservesStock() { state.ready = false; pass("not_ready"); }
     @Test void diagnosticsArePassive() { state.scenario = true; pass("diagnostic_scenario"); }
     @Test void learningIsPassive() { state.learning = true; pass("learning"); }

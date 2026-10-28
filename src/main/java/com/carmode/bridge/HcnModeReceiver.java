@@ -57,14 +57,18 @@ final class HcnModeReceiver extends BroadcastReceiver {
     void reset() { router.reset(); }
     interface AbortOperation { boolean abort(); }
     @Override public void onReceive(Context context, Intent intent) {
-        handle(intent, isOrderedBroadcast(), () -> { abortBroadcast(); return getAbortBroadcast(); });
+        handle(intent, isOrderedBroadcast(), () -> { abortBroadcast(); return getAbortBroadcast(); }, isInitialStickyBroadcast());
     }
     void handle(Intent intent, boolean ordered, AbortOperation abortOperation) {
+        handle(intent, ordered, abortOperation, false);
+    }
+    private void handle(Intent intent, boolean ordered, AbortOperation abortOperation, boolean initialSticky) {
         if (intent == null) return;
         String action = intent.getAction();
         if (!HcnModeRouter.MODE.equals(action) && !HcnModeRouter.AUXILIARY.equals(action)) return;
         HcnModeRouter.Input input = new HcnModeRouter.Input();
         input.action = action; input.ordered = ordered;
+        input.initialSticky = initialSticky;
         input.noAbort = (intent.getFlags() & Intent.FLAG_RECEIVER_NO_ABORT) != 0;
         KeyEvent key = null;
         Integer auxiliaryCode = null;
@@ -99,7 +103,7 @@ final class HcnModeReceiver extends BroadcastReceiver {
         last = new Observation(action, input.ordered, result);
         // Whitelisted scalar fields only. Public broadcasts do not authenticate a physical press.
         app.log().record("hcn_broadcast", "intent_action", action, "flags", intent.getFlags(),
-                "ordered", input.ordered, "no_abort", input.noAbort, "payload_present", payloadPresent,
+                "ordered", input.ordered, "initial_sticky", input.initialSticky, "no_abort", input.noAbort, "payload_present", payloadPresent,
                 "payload_error", payloadError,
                 "malformed", input.malformed, "auxiliary_keycode", auxiliaryCode,
                 "keyCode", key == null ? null : key.getKeyCode(), "scanCode", key == null ? null : key.getScanCode(),
@@ -137,6 +141,7 @@ final class HcnModeReceiver extends BroadcastReceiver {
             case "held_event_suppressed": return R.string.hcn_reason_held;
             case "auxiliary_only": return R.string.hcn_reason_auxiliary;
             case "disabled": return R.string.hcn_reason_disabled;
+            case "initial_sticky_replay": return R.string.hcn_reason_sticky;
             case "not_ready": return R.string.hcn_reason_not_ready;
             case "diagnostic_scenario": case "learning": return R.string.hcn_reason_passive;
             case "malformed_payload": return R.string.hcn_reason_malformed;

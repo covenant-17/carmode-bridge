@@ -1,4 +1,4 @@
-# Camry Home — 0.1.39
+# Camry Home — 0.1.40
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -31,6 +31,14 @@ Corrections are debounced by 250 ms, separated by at least two seconds, and capp
 188 JVM tests and signature checks passed. The API 29 emulator with Accessibility enabled recorded `camry_zlink_external_fullscreen` followed by a measured window request after OS-caption maximization, and `camry_zlink_guard_paused` after repeated forced fullscreen entries exhausted the cap. Real ZLink auto-connect is a separate head-unit check.
 
 The reported unsolicited camera startup is not attributed to CarMode's BootReceiver: that receiver starts only the MODE runtime. The new observer records `camry_camera_foreground_observed` with boot uptime and an explicitly unknown launch source; camera requests made through CarMode already have action/launch records. A diagnostic export after a failing head-unit reboot is still needed to identify the actual source. Camera windows are not covered or blocked by this correction.
+
+## Startup MODE replay filter (0.1.40 / code 41)
+
+The HCN receiver now passes `isInitialStickyBroadcast()` into the routing policy and explicitly ignores `initial_sticky_replay` before opening the MODE menu. Fresh events and the existing manifest cold-wake handoff remain unchanged. A unit test verifies that a saved event cannot start the menu or time out to Camera, and that the next fresh event is accepted. Standard unordered sticky delivery was already rejected by the ordered-broadcast gate; this explicit filter is defensive for replay classification and does not prove that it caused the reported head-unit camera launch.
+
+189 JVM tests, bytecode guards and APK signature checks passed. On the emulator, a separately launched camera fixture remained foreground and produced `camry_camera_foreground_observed` with an unknown source; it was not redirected to Home. The Accessibility correction recorded fullscreen ZLink detections and bounded launch requests. Existing fullscreen tasks may retain their bounds despite accepted launch options: repeated attempts reached the cap rather than forcing a resize. Therefore the correction is best-effort, not a guarantee of Home-only rendering on all firmware.
+
+For the unsolicited camera launch, export Archive > Export log immediately after reproducing a reboot with the new observer enabled. Compare camera observation with `hcn_broadcast`, `action_selected`, `native_action_requested` and `launch_requested`. A window observation alone cannot identify which app started a camera. Neither the native camera package nor any boot component is disabled.
 
 ## Components and lifetime
 
@@ -158,7 +166,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.39-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.40-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 
