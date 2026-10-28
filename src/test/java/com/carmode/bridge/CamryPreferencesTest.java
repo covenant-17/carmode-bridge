@@ -92,6 +92,7 @@ class CamryPreferencesTest {
         assertFalse(prefs.zlinkHomeOnly());
         assertFalse(prefs.allAppsWindow());
         assertFalse(prefs.cameraBootReturn());
+        assertFalse(prefs.cameraAuto());
     }
     @Test void rollbackPersistsAcrossRestartAndPreservesModeAssignmentsAndRuntime() {
         Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
@@ -102,6 +103,7 @@ class CamryPreferencesTest {
         prefs.set("camry_zlink_home_only", true);
         prefs.set("camry_all_apps_window", true);
         prefs.set("camry_camera_boot_return", true);
+        prefs.set("camry_camera_auto", true);
         prefs.camryString("camry_zlink_app", "alternate/.Auto");
         assertTrue(prefs.restoreCamry());
         prefs = disk.restart();
@@ -110,6 +112,7 @@ class CamryPreferencesTest {
         assertFalse(prefs.zlinkHomeOnly());
         assertFalse(prefs.allAppsWindow());
         assertFalse(prefs.cameraBootReturn());
+        assertFalse(prefs.cameraAuto());
         assertTrue(prefs.enabled()); assertTrue(prefs.hcnMode()); assertFalse(prefs.autoStart());
         assertEquals("camera/.Camera", prefs.component(Action.CAMERAS)); assertEquals("ru", prefs.language());
         assertEquals("alternate/.Auto", prefs.zlinkApp());
@@ -120,6 +123,14 @@ class CamryPreferencesTest {
         assertTrue(disk.restart().allAppsWindow());
         prefs.set("camry_all_apps_window", false);
         assertFalse(disk.restart().allAppsWindow());
+    }
+    @Test void independentCameraAndZlinkStartupChoicesPersist() {
+        Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
+        prefs.set("camry_camera_auto", true); prefs.set("camry_zlink_auto", false);
+        Prefs restarted = disk.restart();
+        assertTrue(restarted.cameraAuto()); assertFalse(restarted.zlinkAuto());
+        restarted.set("camry_zlink_auto", true);
+        assertTrue(disk.restart().cameraAuto()); assertTrue(disk.restart().zlinkAuto());
     }
     @Test void failedDurableRollbackIsReported() {
         Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);

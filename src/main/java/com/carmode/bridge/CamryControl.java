@@ -19,6 +19,7 @@ final class CamryControl {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
     static boolean reset(Context context) {
+        CameraStartup.cancel("rollback");
         // Stop pending foreground work even if storage subsequently fails.
         CamryHome.cancelStartup();
         DockService.hide(context);

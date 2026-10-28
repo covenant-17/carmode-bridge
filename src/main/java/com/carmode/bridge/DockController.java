@@ -20,6 +20,7 @@ final class DockController {
         LinearLayout panel = new LinearLayout(localized) {
             @Override public boolean dispatchTouchEvent(MotionEvent event) {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    CameraStartup.cancel("dock_input");
                     CamryHome.cancelStartup(); CarModeApp.from(context).backSequence.reset();
                 }
                 return super.dispatchTouchEvent(event);

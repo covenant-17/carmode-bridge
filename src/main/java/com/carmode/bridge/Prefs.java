@@ -33,6 +33,7 @@ public final class Prefs {
 
     public boolean camryHome() { return data.getBoolean("camry_home", false); }
     public boolean zlinkAuto() { return data.getBoolean("camry_zlink_auto", false); }
+    public boolean cameraAuto() { return data.getBoolean("camry_camera_auto", false); }
     public boolean zlinkWindow() { return data.getBoolean("camry_zlink_window", false); }
     public boolean zlinkHomeOnly() { return data.getBoolean("camry_zlink_home_only", false); }
     public boolean allAppsWindow() { return data.getBoolean("camry_all_apps_window", false); }
@@ -52,7 +53,7 @@ public final class Prefs {
         return data.edit().putBoolean("camry_home", false).putBoolean("camry_zlink_auto", false)
                 .putBoolean("camry_dock", false).putBoolean("camry_zlink_window", false)
                 .putBoolean("camry_zlink_home_only", false).putBoolean("camry_all_apps_window", false)
-                .putBoolean("camry_camera_boot_return", false).commit();
+                .putBoolean("camry_camera_boot_return", false).putBoolean("camry_camera_auto", false).commit();
     }
 
     String[] pinnedApps() {

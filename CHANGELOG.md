@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.50
+
+- Add a separate camera startup switch beside the existing Android Auto startup switch. Enabling camera startup enables Camry Home/window mode and disables the boot-camera return observer. On the first eligible Home window entry per Android boot, launch the configured cameras directly into the measured Home area; if Android Auto startup is also enabled, request ZLink through Home 1.5 seconds after the camera launch request. Camera-only mode has no timed ZLink follow-up. Persist startup claims before launching, keep subsequent explicit Home navigation at default ZLink, and cancel a pending handoff on CarMode input, explicit Home/MODE/Dock navigation, relevant settings, screen-off or rollback. The delay does not detect camera/phone readiness and cannot suppress the firmware's independent startup.
+
 ## 0.1.49
 
 - Improve boot-camera observation after the 0.1.48 head-unit journal showed the watcher expire without requesting Home. Match pause events by Activity identity rather than package alone. Add a secondary UsageStats path only for uniquely recent camera usage newer than lifecycle evidence and within the current boot; reject stale, tied, superseded and future timestamps. Add throttled observation reasons and export a snapshot with boot claim, permission/display gates and last observation. Keep the two-minute window, manual-use suppression and one durable navigation attempt per boot. The supplied journal establishes a missed detection/gated check, not the exact firmware cause or a rejected Home request; real-device validation remains required.

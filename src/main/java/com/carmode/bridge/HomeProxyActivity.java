@@ -56,6 +56,7 @@ public final class HomeProxyActivity extends CamryActivity {
         returns.explicitNavigation(); route();
     }
     @Override protected void onNewIntent(Intent intent) {
+        CameraStartup.cancel("home_navigation");
         CamryHome.cancelStartup();
         CarModeApp.from(this).backSequence.reset();
         super.onNewIntent(intent); setIntent(intent);

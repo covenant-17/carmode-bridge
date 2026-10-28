@@ -12,7 +12,7 @@ final class CamrySettings {
     private static final String[] CORNERS = {"top_left", "top_right", "bottom_left", "bottom_right"};
     private final Activity activity;
     private final Prefs prefs;
-    private Switch home, auto, dock, window, homeOnly, allApps, cameraReturn;
+    private Switch home, auto, cameraAuto, dock, window, homeOnly, allApps, cameraReturn;
     private TextView windowHint;
     private Button target;
     private Button usageAccess;
@@ -29,14 +29,26 @@ final class CamrySettings {
             }
             prefs.set("camry_home", value);
             if (!value) prefs.set("camry_camera_boot_return", false);
+            if (!value) prefs.set("camry_camera_auto", false);
             if (!value) { prefs.set("camry_zlink_auto", false); prefs.set("camry_zlink_home_only", false); prefs.set("camry_all_apps_window", false); }
             refresh();
         });
         auto = toggle(page, R.string.camry_auto_zlink, prefs.zlinkAuto(), value -> {
             prefs.set("camry_zlink_auto", value);
         });
+        cameraAuto = toggle(page, R.string.camry_auto_camera, prefs.cameraAuto(), value -> {
+            if (value && !CamryControl.available(activity)) {
+                CamryControl.error(activity, R.string.camry_no_exit); refresh(); return;
+            }
+            android.content.SharedPreferences.Editor edit = prefs.data.edit().putBoolean("camry_camera_auto", value);
+            if (value) edit.putBoolean("camry_home", true).putBoolean("camry_zlink_window", true)
+                    .putBoolean("camry_camera_boot_return", false);
+            edit.apply(); refresh();
+        });
+        cameraAuto.setTooltipText(I18n.text(activity, R.string.camry_auto_camera_hint));
         window = toggle(page, R.string.camry_zlink_window, prefs.zlinkWindow(), value -> {
             prefs.set("camry_zlink_window", value);
+            if (!value) prefs.set("camry_camera_auto", false);
             if (!value) { prefs.set("camry_zlink_home_only", false); prefs.set("camry_all_apps_window", false); }
             refresh();
         });
@@ -105,6 +117,7 @@ final class CamrySettings {
     void refresh() {
         refreshing = true;
         home.setChecked(prefs.camryHome()); auto.setChecked(prefs.zlinkAuto()); dock.setChecked(prefs.dockEnabled());
+        cameraAuto.setChecked(prefs.cameraAuto());
         window.setChecked(prefs.zlinkWindow());
         homeOnly.setChecked(prefs.zlinkHomeOnly());
         allApps.setChecked(prefs.allAppsWindow());

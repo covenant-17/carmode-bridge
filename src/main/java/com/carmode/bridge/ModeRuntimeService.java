@@ -56,6 +56,8 @@ public final class ModeRuntimeService extends Service {
     }
     private final BroadcastReceiver screen = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction()) || "homekey".equals(intent.getStringExtra("reason"))
+                    || "recentapps".equals(intent.getStringExtra("reason"))) CameraStartup.cancel("system_navigation_or_screen_off");
             cancel(Intent.ACTION_SCREEN_OFF.equals(intent.getAction()) ? "screen_off" : "system_dialogs_closed");
             if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) app.diagnostics().cancel("screen_off");
         }

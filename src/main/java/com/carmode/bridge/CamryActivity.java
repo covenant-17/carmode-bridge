@@ -30,9 +30,11 @@ public abstract class CamryActivity extends Activity {
         return super.dispatchTouchEvent(event);
     }
     private void interacted() {
+        CameraStartup.cancel("user_input");
         CarModeApp.from(this).backSequence.reset(); CamryHome.cancelStartup();
     }
     @Override public void onBackPressed() {
+        CameraStartup.cancel("back");
         CamryHome.cancelStartup();
         CarModeApp app = CarModeApp.from(this);
         if (!app.recovering() && (app.prefs().camryHome() || this instanceof CamryPreviewActivity)

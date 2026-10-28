@@ -98,6 +98,16 @@ class CamrySafetyContractTest {
         assertTrue(service.contains("STARTS.pending() || STARTS.current(activeRequest)"));
         assertTrue(service.contains("stopSelfResult(lastStartId)"));
     }
+    @Test void cameraStartupUsesTheWindowEntryAndDisablesTheCompetingObserver() throws Exception {
+        String home = source("CamryHome");
+        assertTrue(home.contains("if (startCameraStartup()) return;"));
+        assertTrue(home.contains("camry_camera_startup_epoch"));
+        assertTrue(home.contains("CameraStartup.afterCamera(activity, accepted)"));
+        assertTrue(home.contains("CameraBootReturn.manual(activity, target)"));
+        assertTrue(source("CamrySettings").contains("putBoolean(\"camry_camera_boot_return\", false)"));
+        assertTrue(source("CameraStartup").contains("camry_window_target"));
+        assertFalse(source("CameraStartup").contains("startForegroundService"));
+    }
     @Test void camryLabelsHaveBothLanguagesAndNoDuplicateResourceNames() throws Exception {
         Set<String> en = names("src/main/res/values/strings.xml"), ru = names("src/main/res/values-ru/strings.xml");
         en.removeIf(name -> !name.startsWith("camry_")); ru.removeIf(name -> !name.startsWith("camry_"));

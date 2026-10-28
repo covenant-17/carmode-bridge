@@ -12,6 +12,7 @@ public final class Actions implements ActionDispatcher.Port {
     private final CarModeApp app;
     public Actions(Context context) { this.context = context; app = CarModeApp.from(context); }
     public void select(int index, String source) {
+        CameraStartup.cancel("action_selected");
         Action action = Action.values()[index];
         app.log().record("native_action_requested", "action", action.name(), "source", source);
         new ActionDispatcher(this).select(action);
