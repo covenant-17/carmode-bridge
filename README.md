@@ -74,7 +74,7 @@ The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`. Override it if necessary:
 mvn -B clean verify '-Dandroid.sdk=D:/Android/Sdk'
 ```
 
-Output: `target/carmode-bridge-0.1.36-debug.apk`.
+Output: `target/carmode-bridge-0.1.38-debug.apk`.
 
 - `mvn test`: Java unit tests and compiler-stub guard regressions, without APK packaging.
 - `mvn package`: tests and APK compilation, alignment and signature validation.
@@ -111,7 +111,7 @@ For the alternative learned-key route, disable HCN, grant Accessibility manually
 
 ## Camry Home, Dock and ZLink startup
 
-Window-mode Home and Apps share the same right-hand controls and expandable shortcuts. The initial five cells gain an additional empty cell whenever all existing positions are filled. Only shortcuts scroll; the primary controls remain fixed and no scrollbar is drawn. Tap an empty plus to select an app in the existing tile grid; selection pins it without launching it. Filled cells show only the app icon and launch on tap, including ZLink Home-only routing. Hold and drag to swap positions or move into an empty cell. Drop on the temporary top-centre trash to remove the shortcut, preserving the installed app; drop elsewhere to cancel. The trash needs the existing display-over-other-apps permission so it appears above ZLink. Assignments persist across restarts and Camry rollback.
+Window-mode Home and Apps share the same right-hand controls and expandable shortcuts. The initial five cells gain an additional empty cell whenever all existing positions are filled. The initial five cells preserve empty positions until filled. After expansion, removing a shortcut compacts the remaining apps and retains an empty tail, with at least five cells. Only shortcuts scroll; the primary controls remain fixed and no scrollbar is drawn. Tap an empty plus to select an app in the existing tile grid; selection pins it without launching it. Filled cells show only the app icon and launch on tap, including ZLink Home-only routing. Hold and drag to swap positions or move into an empty cell. Drop on the temporary top-centre trash to remove the shortcut, preserving the installed app; drop elsewhere to cancel. The trash needs the existing display-over-other-apps permission so it appears above ZLink. Assignments persist across restarts and Camry rollback.
 
 Install 0.1.23 over the existing app using the same signing key; do not uninstall or clear data. All new features default to off. Existing MODE assignments and OEM Home forwarding are preserved.
 

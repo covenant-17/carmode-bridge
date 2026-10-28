@@ -53,15 +53,18 @@ public final class Prefs {
     }
 
     String[] pinnedApps() {
-        String[] slots = new String[Math.max(5, data.getInt("camry_pin_count", 5))];
-        boolean full = true;
-        for (int i = 0; i < slots.length; i++) {
-            slots[i] = data.getString("camry_pin_" + i, "");
-            if (slots[i].isEmpty()) full = false;
-        }
-        if (!full) return slots;
-        String[] expanded = java.util.Arrays.copyOf(slots, slots.length + 1);
-        expanded[slots.length] = ""; return expanded;
+        String[] saved = new String[Math.max(5, data.getInt("camry_pin_count", 5))];
+        for (int i = 0; i < saved.length; i++) saved[i] = data.getString("camry_pin_" + i, "");
+        return compactPins(saved, saved.length > 5);
+    }
+    private static String[] compactPins(String[] slots, boolean expanded) {
+        java.util.List<String> filled = new java.util.ArrayList<>();
+        for (String component : slots) if (!component.isEmpty()) filled.add(component);
+        if (!expanded && slots.length == 5 && filled.size() < 5) return slots;
+        String[] result = new String[Math.max(5, filled.size() + 1)];
+        java.util.Arrays.fill(result, "");
+        for (int i = 0; i < filled.size(); i++) result[i] = filled.get(i);
+        return result;
     }
     void pinApp(int slot, String component) {
         String[] slots = pinnedApps();
@@ -75,8 +78,11 @@ public final class Prefs {
         String previous = slots[to]; slots[to] = slots[from]; slots[from] = previous; savePins(slots);
     }
     private void savePins(String[] slots) {
-        SharedPreferences.Editor edit = data.edit().putInt("camry_pin_count", slots.length);
-        for (int i = 0; i < slots.length; i++) edit.putString("camry_pin_" + i, slots[i]);
+        int previousCount = Math.max(5, data.getInt("camry_pin_count", 5));
+        String[] compact = compactPins(slots, previousCount > 5 || slots.length > 5);
+        SharedPreferences.Editor edit = data.edit().putInt("camry_pin_count", compact.length);
+        for (int i = 0; i < compact.length; i++) edit.putString("camry_pin_" + i, compact[i]);
+        for (int i = compact.length; i < previousCount; i++) edit.remove("camry_pin_" + i);
         edit.apply();
     }
 

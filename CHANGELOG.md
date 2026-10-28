@@ -10,6 +10,11 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.38
+
+- Keep a minimum of five shortcut cells. Preserve empty positions while the initial five-cell list is not full. Once expanded beyond five, removal compacts assigned apps in order and keeps an empty add cell at the end, shrinking back to five cells when appropriate. Normalize holes in legacy expanded layouts and remove obsolete stored keys on edit to prevent shortcuts returning after restart. Preserve swapping, moving to the end, duplicate selection, shared Home/Apps state and scrolling without scrollbars.
+- Version 0.1.37 was an intermediate build superseded by the clarified five-cell minimum before installation.
+
 ## 0.1.36
 
 - Show the same right-hand controls and persistent expandable shortcuts beside the Apps grid, including its selection mode. Keep grid and shortcuts independently scrollable and reuse ZLink routing.
