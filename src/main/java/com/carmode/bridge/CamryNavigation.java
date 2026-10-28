@@ -8,6 +8,12 @@ import com.carmode.bridge.core.ZlinkRouting;
 /** Place Camry Home underneath a requested external task without intercepting external Back. */
 final class CamryNavigation {
     private CamryNavigation() {}
+    static boolean appWindow(Context context, Intent target) {
+        Prefs prefs = new Prefs(context);
+        return target.getComponent() != null && com.carmode.bridge.core.AppWindowRouting.allowed(
+                prefs.camryHome(), prefs.zlinkWindow(), prefs.allAppsWindow(), CarModeApp.from(context).recovering(),
+                target.getComponent().getPackageName(), context.getPackageName());
+    }
     static boolean isCameraTarget(Context context, Intent target) {
         return target.getComponent() != null && com.carmode.bridge.core.CameraRouting.isTarget(
                 target.getComponent().getPackageName(), new Prefs(context).component(com.carmode.bridge.core.ActionDispatcher.Action.CAMERAS));
@@ -28,7 +34,7 @@ final class CamryNavigation {
     }
     static void launch(Context context, Intent target, Bundle options) {
         CarModeApp app = CarModeApp.from(context);
-        if (options == null && (homeOnly(context, target) || cameraWindow(context, target))) {
+        if (options == null && (homeOnly(context, target) || cameraWindow(context, target) || appWindow(context, target))) {
             CamryHome.cancelStartup(); DockService.hide(context);
             context.startActivity(new Intent(context, HomeProxyActivity.class).setAction(Intent.ACTION_MAIN)
                     .addCategory(Intent.CATEGORY_HOME)

@@ -1,4 +1,4 @@
-# Camry Home — 0.1.46
+# Camry Home — 0.1.47
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -51,6 +51,14 @@ The reported Android 10 head-unit crash was `RemoteServiceException: Context.sta
 Dock now promotes in onCreate and at the start of every onStartCommand, before cancellation, permission checks or stopping. A process-local ForegroundStartQueue assigns request tokens and tracks all undelivered starts. Hiding immediately removes the overlay and invalidates visibility requests, but does not stop the service until those commands are acknowledged. Stale delivery cannot cancel a newer session. Failed start calls remove their queue entries. Stopping uses the latest delivered Android startId with [stopSelfResult](https://developer.android.com/reference/android/app/Service#stopSelfResult(int)), rather than unconditional Context.stopService. Non-sticky lifetime, notification Close, manual/automatic policy, screen-off and recovery remain intact.
 
 Validation: 196 JVM tests, bytecode guards and APK signature passed. Six queue regressions cover cancel-before-create, start/hide/start, multiple pending starts, failed old/current starts and duplicate delivery; the service contract requires foreground acknowledgement before rejection. An emulator-only instrumentation APK signed with the local debug key invoked the real service start/hide entry points on the Android main thread: 90 foreground start requests over 30 rounds, immediate cancellations and alternating active restarts. The run passed with the pending queue drained and no crash. Ordinary camera-to-Dock and Apps-sidebar-to-hidden transitions also passed afterward. Test APK removed after the run. Evidence: ignored `docs/local/camry-0.1.42-dock-race-result.log`, `camry-0.1.42-dock-foreground-build.log`, `camry-0.1.42-sidebar-after-race.png`. The exact UIS8581A firmware crash must still be retested on the head unit.
+
+## All apps window switch (0.1.47 / code 48)
+
+Current now offers an independent All apps in Home window switch, off by default. Enabling it atomically enables Camry Home and window mode. It persists in device-protected preferences; turning Home/window mode off or restoring OEM clears it. The ZLink Home-only switch remains independent. Native Home continues to select ZLink as its default view.
+
+Explicit external app launches from Apps, pinned shortcuts and MODE/Dock assignments use the existing Home target handoff and measured one-shot rectangle. The Android settings rail button resolves its destination and uses the same route. Internal CarMode settings, Apps and recovery are excluded to prevent recursive Home launches. Generic placeholders use the app label; the first rail button returns to ZLink. Disabling the switch cancels pending launches and refreshes Home. The optional Accessibility observer remains specific to ZLink; no global redirection or generic fullscreen retry loop was added.
+
+Validation: 207 JVM tests passed, including routing gates, exclusion of internal/missing targets, default-off preference, persisted selection and durable rollback. APK bytecode/signature checks passed. API 29 UI checks enabled the switch and opened Contacts from Apps beside the Home rail; the CarMode settings rail button opened MainActivity normally from Contacts. The pinned Files destination received a bounded launch request but ignored it and remained fullscreen, confirming that the switch cannot guarantee resizing for all applications. The emulator switch was restored off after testing; no pinned assignments or app data were changed. Evidence: `docs/local/camry-0.1.47-all-apps-toggle.png`, `camry-0.1.47-contacts-home.png`, `camry-0.1.47-files-pinned-home.png`, `camry-0.1.47-bridge-settings-from-contacts.png`, and `camry-0.1.47-switch-restored-off.png`. Head-unit acceptance remains pending.
 
 ## Camera window routing (0.1.46 / code 47)
 
@@ -202,7 +210,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.46-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.47-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

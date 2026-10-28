@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.47
+
+- Add an independent All apps in Home window switch, off by default and persisted across restarts. Enabling it enables Camry Home and window mode. Route explicit external apps opened through Apps, pinned shortcuts, MODE/Dock assignments and the Android settings rail button into the measured Home rectangle. Keep CarMode's own settings, Apps and recovery outside the embedded destination to prevent recursion. Home still defaults to ZLink. Turning off Home/window mode or restoring OEM clears the new switch. Do not intercept launches outside CarMode or enforce bounds with automatic relaunch loops; actual resizing remains app/firmware-dependent.
+
 ## 0.1.46
 
 - Open the configured camera app in the Home content rectangle when Camry Home and window mode are enabled. Route camera selections from the Home rail, Dock, MODE, Apps and pinned shortcuts through the existing measured one-shot window launch. While cameras occupy Home, the rail's first button opens ZLink; native Home returns to the default ZLink view. Retain the configured camera assignment and ordinary fullscreen launch when Home/window mode is off. Do not intercept external camera launches or native reverse-camera activation, and do not add camera fullscreen correction loops. Camera bounds/video scaling remain firmware-dependent.

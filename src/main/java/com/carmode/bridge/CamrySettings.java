@@ -12,7 +12,7 @@ final class CamrySettings {
     private static final String[] CORNERS = {"top_left", "top_right", "bottom_left", "bottom_right"};
     private final Activity activity;
     private final Prefs prefs;
-    private Switch home, auto, dock, window, homeOnly;
+    private Switch home, auto, dock, window, homeOnly, allApps;
     private TextView windowHint;
     private Button target;
     private boolean refreshing;
@@ -27,7 +27,7 @@ final class CamrySettings {
                 CamryControl.error(activity, R.string.camry_no_exit); refresh(); return;
             }
             prefs.set("camry_home", value);
-            if (!value) { prefs.set("camry_zlink_auto", false); prefs.set("camry_zlink_home_only", false); }
+            if (!value) { prefs.set("camry_zlink_auto", false); prefs.set("camry_zlink_home_only", false); prefs.set("camry_all_apps_window", false); }
             refresh();
         });
         auto = toggle(page, R.string.camry_auto_zlink, prefs.zlinkAuto(), value -> {
@@ -35,7 +35,7 @@ final class CamrySettings {
         });
         window = toggle(page, R.string.camry_zlink_window, prefs.zlinkWindow(), value -> {
             prefs.set("camry_zlink_window", value);
-            if (!value) prefs.set("camry_zlink_home_only", false);
+            if (!value) { prefs.set("camry_zlink_home_only", false); prefs.set("camry_all_apps_window", false); }
             refresh();
         });
         homeOnly = toggle(page, R.string.camry_zlink_home_only, prefs.zlinkHomeOnly(), value -> {
@@ -47,6 +47,15 @@ final class CamrySettings {
             edit.apply(); refresh();
         });
         homeOnly.setTooltipText(I18n.text(activity, R.string.camry_zlink_home_only_hint));
+        allApps = toggle(page, R.string.camry_all_apps_window, prefs.allAppsWindow(), value -> {
+            if (value && !CamryControl.available(activity)) {
+                CamryControl.error(activity, R.string.camry_no_exit); refresh(); return;
+            }
+            android.content.SharedPreferences.Editor edit = prefs.data.edit().putBoolean("camry_all_apps_window", value);
+            if (value) edit.putBoolean("camry_home", true).putBoolean("camry_zlink_window", true);
+            edit.apply(); refresh();
+        });
+        allApps.setTooltipText(I18n.text(activity, R.string.camry_all_apps_window_hint));
         windowHint = CamryUi.text(page, I18n.text(activity, R.string.camry_window_hint), 16);
         dock = toggle(page, R.string.camry_dock, prefs.dockEnabled(), value -> prefs.set("camry_dock", value));
         CamryUi.button(page, R.string.camry_help, () -> Toast.makeText(activity,
@@ -83,6 +92,7 @@ final class CamrySettings {
         home.setChecked(prefs.camryHome()); auto.setChecked(prefs.zlinkAuto()); dock.setChecked(prefs.dockEnabled());
         window.setChecked(prefs.zlinkWindow());
         homeOnly.setChecked(prefs.zlinkHomeOnly());
+        allApps.setChecked(prefs.allAppsWindow());
         windowHint.setVisibility(prefs.zlinkWindow() ? android.view.View.VISIBLE : android.view.View.GONE);
         target.setText(I18n.text(activity, R.string.camry_select_zlink) + "\n" + prefs.zlinkApp());
         refreshing = false;

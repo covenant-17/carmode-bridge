@@ -11,7 +11,8 @@ public final class CarModeApp extends Application {
     private MusicHttpAction musicHttp;
     private final android.content.SharedPreferences.OnSharedPreferenceChangeListener runtimeSettings = (data, key) -> {
         if ("camry_home".equals(key) || "camry_zlink_auto".equals(key) || "camry_zlink_app".equals(key)
-                || "camry_zlink_window".equals(key) || "camry_zlink_home_only".equals(key)) CamryHome.cancelStartup();
+                || "camry_zlink_window".equals(key) || "camry_zlink_home_only".equals(key)
+                || "camry_all_apps_window".equals(key)) CamryHome.cancelStartup();
         if ("camry_home".equals(key) || "camry_dock".equals(key) || "camry_dock_position".equals(key) || "camry_dock_opacity".equals(key) || "language".equals(key))
             if (DockService.active() != null) DockService.active().settingsChanged();
         if ("camry_home".equals(key)) DockService.sidebarAbsent(this);

@@ -31,10 +31,11 @@ public final class Actions implements ActionDispatcher.Port {
             boolean zlink = CamryNavigation.isZlinkTarget(context, intent);
             boolean homeOnly = CamryNavigation.homeOnly(context, intent);
             boolean cameraWindow = CamryNavigation.cameraWindow(context, intent);
-            if (zlink || cameraWindow)
+            boolean allWindow = CamryNavigation.appWindow(context, intent);
+            if (zlink || cameraWindow || allWindow)
                 CamryNavigation.launch(context, intent, null);
             else context.startActivity(intent);
-            if ((action == Action.CAMERAS && !cameraWindow) || (zlink && !homeOnly))
+            if ((action == Action.CAMERAS && !cameraWindow && !allWindow) || (zlink && !homeOnly && !allWindow))
                 DockService.transition(context);
             // Cancel an unsent music request when another destination is selected successfully.
             if (action != Action.MUSIC) app.musicHttp().cancel("other_action_selected");

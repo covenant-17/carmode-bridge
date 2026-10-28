@@ -90,6 +90,7 @@ class CamryPreferencesTest {
         assertEquals("com.zjinnova.zlink", prefs.zlinkApp());
         assertEquals("bottom_right", prefs.dockPosition());
         assertFalse(prefs.zlinkHomeOnly());
+        assertFalse(prefs.allAppsWindow());
     }
     @Test void rollbackPersistsAcrossRestartAndPreservesModeAssignmentsAndRuntime() {
         Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
@@ -98,15 +99,24 @@ class CamryPreferencesTest {
         prefs.set("camry_home", true); prefs.set("camry_dock", true); prefs.set("camry_zlink_auto", true);
         prefs.set("camry_zlink_window", true);
         prefs.set("camry_zlink_home_only", true);
+        prefs.set("camry_all_apps_window", true);
         prefs.camryString("camry_zlink_app", "alternate/.Auto");
         assertTrue(prefs.restoreCamry());
         prefs = disk.restart();
         assertFalse(prefs.camryHome()); assertFalse(prefs.zlinkAuto()); assertFalse(prefs.dockEnabled());
         assertFalse(prefs.zlinkWindow());
         assertFalse(prefs.zlinkHomeOnly());
+        assertFalse(prefs.allAppsWindow());
         assertTrue(prefs.enabled()); assertTrue(prefs.hcnMode()); assertFalse(prefs.autoStart());
         assertEquals("camera/.Camera", prefs.component(Action.CAMERAS)); assertEquals("ru", prefs.language());
         assertEquals("alternate/.Auto", prefs.zlinkApp());
+    }
+    @Test void allAppsWindowChoicePersistsAcrossRestart() {
+        Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
+        prefs.set("camry_all_apps_window", true);
+        assertTrue(disk.restart().allAppsWindow());
+        prefs.set("camry_all_apps_window", false);
+        assertFalse(disk.restart().allAppsWindow());
     }
     @Test void failedDurableRollbackIsReported() {
         Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
