@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.45
+
+- Route Dock Home through the existing HOME Activity when Camry mode is enabled, matching the native Home button and issuing a fresh one-shot ZLink window request. Avoid opening a competing preview controller/task that can cancel or displace window restoration. Keep preview access when Camry mode is off and preserve the separate Restore OEM path. Retain the connection-time correction limits from 0.1.44.
+
 ## 0.1.44
 
 - Reduce ZLink connection-time window churn: require three seconds of continuously observed fullscreen dimensions before the optional external-window correction. Allow only one correction per service/settings session, including when ZLink rejects the requested bounds. Stop treating a 750 ms focus/lifecycle delay as proof of a bounded window; automatic Home restoration is consumed once per launch and is rearmed by navigation, not transient connection focus changes. Native Home and explicit ZLink launches remain available. Real Android Auto handshake behavior still requires head-unit validation.

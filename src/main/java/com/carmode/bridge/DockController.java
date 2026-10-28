@@ -74,6 +74,16 @@ final class DockController {
     private void open(boolean apps, boolean restore) {
         try {
             if (apps) { CamryAppsActivity.open(context); return; }
+            CarModeApp app = CarModeApp.from(context);
+            if (!restore && !app.recovering() && app.prefs().camryHome()) {
+                // Use the same entry as native Home: preview creates a second controller/task
+                // whose pending window launch can compete with the retained HOME controller.
+                DockService.hide(context);
+                context.startActivity(new Intent(context, HomeProxyActivity.class).setAction(Intent.ACTION_MAIN)
+                        .addCategory(Intent.CATEGORY_HOME)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                return;
+            }
             Intent intent = new Intent(context, CamryPreviewActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     .putExtra("apps", apps).putExtra("restore", restore);

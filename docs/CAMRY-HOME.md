@@ -1,4 +1,4 @@
-# Camry Home — 0.1.44
+# Camry Home — 0.1.45
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -51,6 +51,12 @@ The reported Android 10 head-unit crash was `RemoteServiceException: Context.sta
 Dock now promotes in onCreate and at the start of every onStartCommand, before cancellation, permission checks or stopping. A process-local ForegroundStartQueue assigns request tokens and tracks all undelivered starts. Hiding immediately removes the overlay and invalidates visibility requests, but does not stop the service until those commands are acknowledged. Stale delivery cannot cancel a newer session. Failed start calls remove their queue entries. Stopping uses the latest delivered Android startId with [stopSelfResult](https://developer.android.com/reference/android/app/Service#stopSelfResult(int)), rather than unconditional Context.stopService. Non-sticky lifetime, notification Close, manual/automatic policy, screen-off and recovery remain intact.
 
 Validation: 196 JVM tests, bytecode guards and APK signature passed. Six queue regressions cover cancel-before-create, start/hide/start, multiple pending starts, failed old/current starts and duplicate delivery; the service contract requires foreground acknowledgement before rejection. An emulator-only instrumentation APK signed with the local debug key invoked the real service start/hide entry points on the Android main thread: 90 foreground start requests over 30 rounds, immediate cancellations and alternating active restarts. The run passed with the pending queue drained and no crash. Ordinary camera-to-Dock and Apps-sidebar-to-hidden transitions also passed afterward. Test APK removed after the run. Evidence: ignored `docs/local/camry-0.1.42-dock-race-result.log`, `camry-0.1.42-dock-foreground-build.log`, `camry-0.1.42-sidebar-after-race.png`. The exact UIS8581A firmware crash must still be retested on the head unit.
+
+## Dock Home restoration (0.1.45 / code 46)
+
+With Camry mode enabled, Dock Home now explicitly enters HomeProxyActivity with MAIN/HOME and NEW_TASK/CLEAR_TOP/SINGLE_TOP. This matches native Home and schedules a fresh one-shot window entry. The previous Dock path opened CamryPreviewActivity, creating a second controller/task that could compete with the retained HOME controller. Preview is retained when Camry mode is off; Restore OEM keeps its separate recovery path. No automatic correction budget is reset.
+
+Validation: 200 JVM tests, bytecode guards and APK signature verification passed. On the API 29 emulator, Settings -> Dock Home produced a Home route followed by a ZLink window request at [0,24][1216,672]. A fresh demo task rendered beside the rail and the repeated Settings -> Dock Home transition restored it again. An existing fullscreen demo task initially ignored the bounds request; resetting that demo task allowed the fresh-window check. The route fix does not guarantee resizing an existing task against firmware decisions. Screenshots: `docs/local/camry-0.1.45-dock-home-fresh-window.png` and `camry-0.1.45-dock-home-repeat.png`. Real head-unit validation remains pending.
 
 ## Connection-time window stabilization (0.1.44 / code 45)
 
@@ -188,7 +194,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.44-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.45-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

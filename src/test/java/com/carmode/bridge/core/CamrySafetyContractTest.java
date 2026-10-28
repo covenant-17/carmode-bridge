@@ -76,6 +76,19 @@ class CamrySafetyContractTest {
         assertTrue(actions.indexOf("DockService.hide(context)") < actions.indexOf("AppResolver.resolve"));
         assertTrue(actions.indexOf("DockService.transition(context)") > actions.indexOf("else context.startActivity(intent)"));
     }
+    @Test void dockHomeUsesTheNativeHomeEntryInsteadOfACompetingPreview() throws Exception {
+        String dock = source("DockController");
+        String open = dock.substring(dock.indexOf("private void open("), dock.indexOf("void close()"));
+        assertTrue(open.contains("!restore && !app.recovering() && app.prefs().camryHome()"));
+        int home = open.indexOf("new Intent(context, HomeProxyActivity.class)");
+        int preview = open.indexOf("new Intent(context, CamryPreviewActivity.class)");
+        assertTrue(home >= 0 && preview > home);
+        String route = open.substring(home, preview);
+        assertTrue(route.contains("setAction(Intent.ACTION_MAIN)"));
+        assertTrue(route.contains("addCategory(Intent.CATEGORY_HOME)"));
+        assertTrue(route.contains("Intent.FLAG_ACTIVITY_SINGLE_TOP"));
+        assertTrue(route.contains("return;"));
+    }
     @Test void dockAcknowledgesForegroundBeforeRejectingOrStoppingAStart() throws Exception {
         String service = source("DockService");
         String command = service.substring(service.indexOf("public int onStartCommand"), service.indexOf("private void stopWhenReady"));
