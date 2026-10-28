@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.41
+
+- Add CarMode settings immediately before Hide in the expanded Dock, using the existing theme icon and the explicit app settings entry. Retain bounded horizontal scrolling on narrow displays.
+
 ## 0.1.40
 
 - Ignore initial sticky MODE replays delivered when the runtime receiver registers. A saved boot-time broadcast cannot open the menu and time out to its default Camera choice. Fresh MODE clicks and the manifest cold-wake handoff remain unchanged. Log the initial-sticky flag and show its reason in HCN status. This closes a plausible internal path; it does not establish the cause of the reported head-unit camera launch or suppress native/reverse-camera startup.

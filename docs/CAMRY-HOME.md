@@ -1,4 +1,4 @@
-# Camry Home — 0.1.40
+# Camry Home — 0.1.41
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -39,6 +39,10 @@ The HCN receiver now passes `isInitialStickyBroadcast()` into the routing policy
 189 JVM tests, bytecode guards and APK signature checks passed. On the emulator, a separately launched camera fixture remained foreground and produced `camry_camera_foreground_observed` with an unknown source; it was not redirected to Home. The Accessibility correction recorded fullscreen ZLink detections and bounded launch requests. Existing fullscreen tasks may retain their bounds despite accepted launch options: repeated attempts reached the cap rather than forcing a resize. Therefore the correction is best-effort, not a guarantee of Home-only rendering on all firmware.
 
 For the unsolicited camera launch, export Archive > Export log immediately after reproducing a reboot with the new observer enabled. Compare camera observation with `hcn_broadcast`, `action_selected`, `native_action_requested` and `launch_requested`. A window observation alone cannot identify which app started a camera. Neither the native camera package nor any boot component is disabled.
+
+## Dock settings shortcut (0.1.41 / code 42)
+
+Expanded Dock places CarMode settings immediately before Hide. It uses the existing settings icon/label and explicit LauncherActivity entry with NEW_TASK/CLEAR_TOP/SINGLE_TOP; the launcher routes to normal settings or crash recovery. Dock remains available over settings, and narrow screens retain bounded horizontal scrolling. 189 JVM tests and APK signature checks passed. The API 29 emulator verified button placement and tapping it from the camera fixture opened MainActivity. Evidence: `docs/local/camry-0.1.41-dock-settings.png` and `camry-0.1.41-settings-opened.png`.
 
 ## Components and lifetime
 
@@ -166,7 +170,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.40-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.41-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

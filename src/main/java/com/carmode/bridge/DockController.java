@@ -35,6 +35,12 @@ final class DockController {
             CamryUi.button(panel, R.string.camry_home, () -> open(false, false));
             CamryUi.button(panel, R.string.camry_apps, () -> open(true, false));
             CamryUi.button(panel, R.string.camry_restore_short, () -> open(false, true));
+            CamryUi.button(panel, R.string.camry_settings, () -> {
+                try {
+                    context.startActivity(new Intent(context, LauncherActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                } catch (RuntimeException error) { CamryControl.error(context, R.string.camry_launch_failed); }
+            });
             CamryUi.button(panel, R.string.camry_collapse_dock, () -> { collapsed = true; refresh(); });
         }
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
