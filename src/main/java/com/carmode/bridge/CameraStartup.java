@@ -22,9 +22,11 @@ final class CameraStartup {
     static void afterCamera(Context context, boolean launchAccepted) {
         cancel("new_sequence");
         CarModeApp app = CarModeApp.from(context);
-        app.log().record("camry_camera_startup_camera_requested", "launch_accepted", launchAccepted, "foreground_confirmed", false);
+        int delayMs = app.prefs().cameraStartupDelayMs();
+        app.log().record("camry_camera_startup_camera_requested", "launch_accepted", launchAccepted,
+                "delay_ms", delayMs, "foreground_confirmed", false);
         if (!app.prefs().zlinkAuto()) return;
-        owner = app; sequence = new CameraStartupSequence(SystemClock.elapsedRealtime(), true);
+        owner = app; sequence = new CameraStartupSequence(SystemClock.elapsedRealtime(), true, delayMs);
         handler.postDelayed(() -> {
             CameraStartupSequence current = sequence;
             sequence = null; owner = null;
@@ -43,6 +45,6 @@ final class CameraStartup {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                 app.log().record("camry_camera_startup_zlink_requested", "foreground_confirmed", false);
             } catch (Exception error) { app.log().record("camry_camera_startup_error", "error", error.getClass().getSimpleName()); }
-        }, CameraStartupSequence.DELAY_MS);
+        }, delayMs);
     }
 }

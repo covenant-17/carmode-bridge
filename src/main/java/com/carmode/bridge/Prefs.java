@@ -34,6 +34,15 @@ public final class Prefs {
     public boolean camryHome() { return data.getBoolean("camry_home", false); }
     public boolean zlinkAuto() { return data.getBoolean("camry_zlink_auto", false); }
     public boolean cameraAuto() { return data.getBoolean("camry_camera_auto", false); }
+    public int cameraStartupDelayMs() {
+        int value = data.getInt("camry_camera_startup_delay_ms", com.carmode.bridge.core.CameraStartupSequence.DEFAULT_DELAY_MS);
+        return com.carmode.bridge.core.CameraStartupSequence.validDelay(value)
+                ? value : com.carmode.bridge.core.CameraStartupSequence.DEFAULT_DELAY_MS;
+    }
+    public void cameraStartupDelayMs(int value) {
+        if (!com.carmode.bridge.core.CameraStartupSequence.validDelay(value)) throw new IllegalArgumentException("Invalid startup delay");
+        data.edit().putInt("camry_camera_startup_delay_ms", value).apply();
+    }
     public boolean zlinkWindow() { return data.getBoolean("camry_zlink_window", false); }
     public boolean zlinkHomeOnly() { return data.getBoolean("camry_zlink_home_only", false); }
     public boolean allAppsWindow() { return data.getBoolean("camry_all_apps_window", false); }

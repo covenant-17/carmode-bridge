@@ -16,6 +16,7 @@ final class CamrySettings {
     private TextView windowHint;
     private Button target;
     private Button usageAccess;
+    private Button startupDelay;
     private boolean refreshing;
     private CamrySettings(Activity activity) { this.activity = activity; prefs = new Prefs(activity); }
     static CamrySettings render(Activity activity, LinearLayout parent) {
@@ -46,6 +47,7 @@ final class CamrySettings {
             edit.apply(); refresh();
         });
         cameraAuto.setTooltipText(I18n.text(activity, R.string.camry_auto_camera_hint));
+        startupDelay = CamryUi.button(page, "", this::editStartupDelay);
         window = toggle(page, R.string.camry_zlink_window, prefs.zlinkWindow(), value -> {
             prefs.set("camry_zlink_window", value);
             if (!value) prefs.set("camry_camera_auto", false);
@@ -118,6 +120,7 @@ final class CamrySettings {
         refreshing = true;
         home.setChecked(prefs.camryHome()); auto.setChecked(prefs.zlinkAuto()); dock.setChecked(prefs.dockEnabled());
         cameraAuto.setChecked(prefs.cameraAuto());
+        startupDelay.setText(I18n.text(activity, R.string.camry_startup_delay_value, prefs.cameraStartupDelayMs()));
         window.setChecked(prefs.zlinkWindow());
         homeOnly.setChecked(prefs.zlinkHomeOnly());
         allApps.setChecked(prefs.allAppsWindow());
@@ -130,6 +133,31 @@ final class CamrySettings {
         refreshing = false;
     }
     private int positionIndex() { return Arrays.asList(CORNERS).indexOf(prefs.dockPosition()); }
+    private void editStartupDelay() {
+        LinearLayout box = CamryUi.page(activity);
+        EditText input = new EditText(activity);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setSingleLine(true);
+        input.setText(Integer.toString(prefs.cameraStartupDelayMs()));
+        box.addView(input);
+        CamryUi.text(box, I18n.text(activity, R.string.camry_startup_delay_hint), 16);
+        AlertDialog dialog = new AlertDialog.Builder(activity).setTitle(R.string.camry_startup_delay)
+                .setView(box).setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(R.string.cancel, null).create();
+        dialog.setOnShowListener(shown -> {
+            input.selectAll();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                try {
+                    int value = Integer.parseInt(input.getText().toString().trim());
+                    if (!com.carmode.bridge.core.CameraStartupSequence.validDelay(value)) throw new NumberFormatException();
+                    prefs.cameraStartupDelayMs(value); refresh(); dialog.dismiss();
+                } catch (NumberFormatException invalid) {
+                    input.setError(I18n.text(activity, R.string.camry_startup_delay_invalid));
+                }
+            });
+        });
+        dialog.show();
+    }
     private interface Change { void changed(boolean value); }
     private Switch toggle(LinearLayout page, int title, boolean checked, Change change) {
         Switch control = new Switch(activity); control.setText(title); control.setTextSize(19);

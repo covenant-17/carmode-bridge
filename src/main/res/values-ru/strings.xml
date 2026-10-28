@@ -178,7 +178,11 @@
     <string name="camry_home_mode">Режим Home: Camry (ВЫКЛ = OEM)</string>
     <string name="camry_auto_zlink">Автозапуск Android Auto при старте</string>
     <string name="camry_auto_camera">Автозапуск камер при старте</string>
-    <string name="camry_auto_camera_hint">Включает Camry Home и оконный режим. Один раз за загрузку Android сначала открывает выбранные камеры в Home. Если включён и автозапуск Android Auto, через 2,5 секунды запрашивает ZLink. Это фиксированная задержка, не проверка готовности. Отключает отдельный наблюдатель возврата из камер.</string>
+    <string name="camry_auto_camera_hint">Включает Camry Home и оконный режим. Один раз за загрузку Android сначала открывает выбранные камеры в Home. Если включён и автозапуск Android Auto, запрашивает ZLink через указанную задержку (по умолчанию 2500 мс). Это таймер, не проверка готовности. Отключает отдельный наблюдатель возврата из камер.</string>
+    <string name="camry_startup_delay">Задержка автозапуска камеры → ZLink (мс)</string>
+    <string name="camry_startup_delay_value">Задержка камеры → ZLink: %1$d мс</string>
+    <string name="camry_startup_delay_hint">0–600000 мс. По умолчанию 2500 мс. Применяется к следующему автозапуску. Изменение отменяет ожидающий переход.</string>
+    <string name="camry_startup_delay_invalid">Введите целое число от 0 до 600000.</string>
     <string name="camry_dock">Разрешить CarMode Dock (ручные сеансы)</string>
     <string name="camry_show_dock">Показать Dock на этот сеанс</string>
     <string name="camry_hide_dock">Закрыть Dock</string>

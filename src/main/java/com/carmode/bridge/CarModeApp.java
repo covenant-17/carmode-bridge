@@ -11,7 +11,8 @@ public final class CarModeApp extends Application {
     private MusicHttpAction musicHttp;
     private final android.content.SharedPreferences.OnSharedPreferenceChangeListener runtimeSettings = (data, key) -> {
         if ("camry_home".equals(key) || "camry_zlink_window".equals(key) || "camry_zlink_auto".equals(key)
-                || "camry_camera_auto".equals(key) || "camry_zlink_app".equals(key) || "component_CAMERAS".equals(key))
+                || "camry_camera_auto".equals(key) || "camry_camera_startup_delay_ms".equals(key)
+                || "camry_zlink_app".equals(key) || "component_CAMERAS".equals(key))
             CameraStartup.cancel("settings_changed");
         if ("camry_home".equals(key) || "camry_zlink_auto".equals(key) || "camry_zlink_app".equals(key)
                 || "camry_zlink_window".equals(key) || "camry_zlink_home_only".equals(key)

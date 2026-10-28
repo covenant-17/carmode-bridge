@@ -93,6 +93,7 @@ class CamryPreferencesTest {
         assertFalse(prefs.allAppsWindow());
         assertFalse(prefs.cameraBootReturn());
         assertFalse(prefs.cameraAuto());
+        assertEquals(2500, prefs.cameraStartupDelayMs());
     }
     @Test void rollbackPersistsAcrossRestartAndPreservesModeAssignmentsAndRuntime() {
         Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
@@ -131,6 +132,23 @@ class CamryPreferencesTest {
         assertTrue(restarted.cameraAuto()); assertFalse(restarted.zlinkAuto());
         restarted.set("camry_zlink_auto", true);
         assertTrue(disk.restart().cameraAuto()); assertTrue(disk.restart().zlinkAuto());
+    }
+    @Test void customStartupDelayPersistsAndSurvivesFeatureRollback() {
+        Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
+        prefs.cameraStartupDelayMs(12345);
+        assertEquals(12345, disk.restart().cameraStartupDelayMs());
+        assertTrue(prefs.restoreCamry());
+        assertEquals(12345, disk.restart().cameraStartupDelayMs());
+        prefs.cameraStartupDelayMs(0); assertEquals(0, disk.restart().cameraStartupDelayMs());
+    }
+    @Test void invalidStartupDelayDoesNotOverwriteTheLastValidSetting() {
+        Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);
+        prefs.cameraStartupDelayMs(9000);
+        assertThrows(IllegalArgumentException.class, () -> prefs.cameraStartupDelayMs(-1));
+        assertThrows(IllegalArgumentException.class, () -> prefs.cameraStartupDelayMs(600001));
+        assertEquals(9000, prefs.cameraStartupDelayMs());
+        prefs.data.edit().putInt("camry_camera_startup_delay_ms", -10).apply();
+        assertEquals(2500, prefs.cameraStartupDelayMs());
     }
     @Test void failedDurableRollbackIsReported() {
         Memory disk = new Memory(); Prefs prefs = new Prefs(disk.data);

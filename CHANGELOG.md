@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.52
+
+- Add an editable Camera -> ZLink startup delay in Current, in milliseconds, defaulting to 2500. Accept whole numbers from 0 through 600000, keep invalid input open for correction, and preserve the previous valid value. Persist the setting across restart and feature rollback, use one selected delay for both scheduling and the one-shot deadline, cancel an already pending handoff when the setting changes, and include delay_ms in the camera-startup diagnostic event.
+
 ## 0.1.51
 
 - Increase the camera-first startup handoff delay before ZLink from 1.5 to 2.5 seconds. Update both language hints and timing boundary tests. Retain one-shot startup and cancellation behavior.
