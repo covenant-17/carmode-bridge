@@ -45,7 +45,7 @@ $generated = Join-Path $staging 'generated'
 New-Item -ItemType Directory -Force -Path $classes | Out-Null
 Build-Resources $staging $generated
 $sources = @(Get-ChildItem -LiteralPath "$projectRoot/src/main/java", $generated -Filter '*.java' -Recurse | Sort-Object FullName | ForEach-Object { $_.FullName })
-Invoke-Checked "$JavaHome/bin/javac.exe" (@('--release', '8', '-encoding', 'UTF-8', '-proc:none', '-classpath', $androidJar, '-d', $classes) + $sources)
+Invoke-Checked "$JavaHome/bin/javac.exe" (@('--release', '8', '-g', '-encoding', 'UTF-8', '-proc:none', '-classpath', $androidJar, '-d', $classes) + $sources)
 $privateJar = Join-Path $staging 'app.jar'
 Invoke-Checked "$JavaHome/bin/jar.exe" @('--create', '--file', $privateJar, '-C', $classes, '.')
 Assert-NoCompilerStubs $privateJar
