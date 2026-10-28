@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.49
+
+- Improve boot-camera observation after the 0.1.48 head-unit journal showed the watcher expire without requesting Home. Match pause events by Activity identity rather than package alone. Add a secondary UsageStats path only for uniquely recent camera usage newer than lifecycle evidence and within the current boot; reject stale, tied, superseded and future timestamps. Add throttled observation reasons and export a snapshot with boot claim, permission/display gates and last observation. Keep the two-minute window, manual-use suppression and one durable navigation attempt per boot. The supplied journal establishes a missed detection/gated check, not the exact firmware cause or a rejected Home request; real-device validation remains required.
+
 ## 0.1.48
 
 - Add an opt-in boot-camera return switch: during the first two minutes after Android starts, observe app foreground events through explicitly granted Usage access and return to Camry Home with default ZLink once if the configured camera appears. Persist the boot claim before navigation, stop observing after consumption/timeout, and preserve the claim across process restarts. Camera launches through CarMode consume the claim without redirecting. Require Camry Home, overlay permission and an unlocked interactive screen; disable on rollback/Home off. Do not inject Back, force-stop cameras or repeat corrections. Native reverse-gear activation cannot be distinguished from other external camera launches during this initial window; the switch defaults off.

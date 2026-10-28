@@ -19,6 +19,7 @@ final class DiagnosticState {
             state.put("accessibility_lifecycle", ServiceEvidence.capture(context));
             state.put("previous_accessibility_callback", ServiceEvidence.previous(context));
             state.put("overlay_allowed", Settings.canDrawOverlays(context));
+            state.put("camera_boot_return", CameraBootReturn.snapshot(context));
             AccessibilityManager manager = context.getSystemService(AccessibilityManager.class);
             if (manager != null) for (AccessibilityServiceInfo info : manager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)) {
                 boolean own = info.getResolveInfo().serviceInfo.packageName.equals(context.getPackageName());

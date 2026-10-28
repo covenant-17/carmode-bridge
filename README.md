@@ -2,7 +2,7 @@
 
 A native Android app that replaces the stock MODE menu on aftermarket head units with HCN OEM software, tested on **UIS8581A running Android 10 / API 29**. It receives steering-wheel MODE presses through HCN OEM broadcasts rather than relying on standard Android key input. This input path works **without Accessibility access or root**, and leaves system APKs unchanged.
 
-Current application version: **0.1.48**, Android versionCode **49**.
+Current application version: **0.1.49**, Android versionCode **50**.
 
 ## Current behaviour
 
@@ -78,7 +78,7 @@ The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`. Override it if necessary:
 mvn -B clean verify '-Dandroid.sdk=D:/Android/Sdk'
 ```
 
-Output: `target/carmode-bridge-<version>-debug.apk`, using the incremented version. The existing 0.1.48 artifact is named `carmode-bridge-0.1.48-debug.apk`.
+Output: `target/carmode-bridge-<version>-debug.apk`, using the incremented version. The existing 0.1.49 artifact is named `carmode-bridge-0.1.49-debug.apk`.
 
 - `mvn test`: Java unit tests and compiler-stub guard regressions, without APK packaging.
 - `mvn package`: tests and APK compilation, alignment and signature validation.
@@ -130,6 +130,8 @@ In **Current → Camry OS**, enable Camry Home if desired. Enabling it checks th
 Window placement is a request to Android, not a video capture or an embedded View. Apps or OEM firmware can ignore bounds, retain an existing fullscreen task or handle video surfaces differently. In the 0.1.47 emulator check, Contacts used the Home rectangle while Files ignored the request and remained fullscreen. Real-device behavior must be checked per app.
 
 **Return Home after first boot-time camera launch** enables Camry Home and window mode. To use it, enable the switch in Current, tap **Allow Usage access for CarMode Bridge**, grant that access in Android settings, retain overlay permission and enable device startup. Then reboot. Accessibility is not required. The background runtime samples foreground app events every 500 ms only during the first 120 seconds of Android boot. If the configured camera is the current foreground app and the display is unlocked and interactive, it persists a boot claim and requests Home with default ZLink once. It does not inject Back or stop the camera process. The claim survives process restarts and switch toggles; a new readable Android boot identity permits a new attempt. A camera selected through CarMode consumes the claim without redirecting. Missing Usage access, missing overlay permission, an unknown boot identity or crash recovery prevents the return. Home off and OEM rollback disable the switch.
+
+From 0.1.49, lifecycle pauses are matched to the Activity as well as its package. If lifecycle events do not identify cameras, a secondary UsageStats check accepts only uniquely recent camera usage (at most 2.5 seconds old), newer than lifecycle evidence and other apps, and within the current boot. Stale, tied and future timestamps are rejected. Diagnostic JSON includes `state_at_export.camera_boot_return`; throttled `camry_camera_boot_observation` events record permission/display gates, empty events, foreground evidence and expiry. The 0.1.48 head-unit journal showed the observer expire without a Home request, but did not capture enough evidence to establish which detection/gate failed.
 
 This is a one-time startup workaround, not a reverse-gear detector. It can return Home if the first external camera appearance in those two minutes was caused by reverse gear. It does not repeatedly fight camera launches, and it does not prove that ZLink's phone connection becomes faster. Usage access availability and persistence must be verified on the head unit.
 
