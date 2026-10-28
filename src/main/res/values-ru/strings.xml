@@ -224,7 +224,7 @@
     <string name="camry_zlink_home_only_hint">Включает Camry Home и оконный режим. Запуски ZLink через Apps, MODE и Dock в CarMode ведут на Home. Запуски из других лаунчеров и собственные кнопки ZLink зависят от прошивки магнитолы.</string>
     <string name="camry_pin_choose">Выберите приложение для закрепления</string>
     <string name="camry_pin_add">Закрепить приложение</string>
-    <string name="camry_pin_remove">Убрать ярлык</string>
+    <string name="camry_pin_remove">Удалить</string>
     <string name="camry_pin_unavailable">Приложение недоступно. Удерживайте, чтобы убрать или переместить ярлык.</string>
     <string name="camry_pin_drag_permission">Разрешите показ поверх приложений, чтобы корзина отображалась над ZLink.</string>
 </resources>

@@ -94,25 +94,26 @@ final class CamryPinnedApps {
         }
     }
     private boolean showTrash() {
-        trash = new TextView(activity); trash.setGravity(Gravity.CENTER); trash.setTextColor(Color.WHITE);
-        trash.setText(I18n.text(activity, R.string.camry_pin_remove)); trash.setTextSize(18);
+        trash = new TextView(activity); trash.setGravity(Gravity.CENTER); trash.setTextColor(CamryUi.ACCENT);
+        trash.setText("\u00d7  " + I18n.text(activity, R.string.camry_pin_remove)); trash.setTextSize(18);
         trash.setContentDescription(I18n.text(activity, R.string.camry_pin_remove));
-        trash.setCompoundDrawablesWithIntrinsicBounds(new ShortcutSymbol(true), null, null, null);
-        trash.setCompoundDrawablePadding(CamryUi.dp(activity, 12)); trash.setPadding(16, 8, 16, 8);
-        trash.setBackgroundColor(0xFF81363C);
+        trash.setPadding(CamryUi.dp(activity, 16), CamryUi.dp(activity, 8), CamryUi.dp(activity, 16), CamryUi.dp(activity, 8));
+        GradientDrawable background = new GradientDrawable(); background.setColor(CamryUi.BACKGROUND);
+        background.setCornerRadius(0);
+        background.setStroke(CamryUi.dp(activity, 2), CamryUi.ACCENT); trash.setBackground(background);
         trash.setOnDragListener((v, event) -> {
             if (!ownDrag(event)) return false;
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED: return true;
-                case DragEvent.ACTION_DRAG_ENTERED: v.setBackgroundColor(0xFFC5424C); return true;
-                case DragEvent.ACTION_DRAG_EXITED: v.setBackgroundColor(0xFF81363C); return true;
+                case DragEvent.ACTION_DRAG_ENTERED: background.setColor(0xFF1A4049); return true;
+                case DragEvent.ACTION_DRAG_EXITED: background.setColor(CamryUi.BACKGROUND); return true;
                 case DragEvent.ACTION_DROP: prefs.pinApp(dragging, ""); return true;
                 case DragEvent.ACTION_DRAG_ENDED: finishDrag(); return true;
                 default: return true;
             }
         });
         windows = activity.getSystemService(WindowManager.class);
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(CamryUi.dp(activity, 260), CamryUi.dp(activity, 64),
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(CamryUi.dp(activity, 176), CamryUi.dp(activity, 56),
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT);

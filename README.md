@@ -74,7 +74,7 @@ The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`. Override it if necessary:
 mvn -B clean verify '-Dandroid.sdk=D:/Android/Sdk'
 ```
 
-Output: `target/carmode-bridge-0.1.31-debug.apk`.
+Output: `target/carmode-bridge-0.1.33-debug.apk`.
 
 - `mvn test`: Java unit tests and compiler-stub guard regressions, without APK packaging.
 - `mvn package`: tests and APK compilation, alignment and signature validation.
