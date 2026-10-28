@@ -74,7 +74,7 @@ The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`. Override it if necessary:
 mvn -B clean verify '-Dandroid.sdk=D:/Android/Sdk'
 ```
 
-Output: `target/carmode-bridge-0.1.38-debug.apk`.
+Output: `target/carmode-bridge-0.1.39-debug.apk`.
 
 - `mvn test`: Java unit tests and compiler-stub guard regressions, without APK packaging.
 - `mvn package`: tests and APK compilation, alignment and signature validation.
@@ -117,7 +117,7 @@ Install 0.1.23 over the existing app using the same signing key; do not uninstal
 
 In **Current → Camry OS**, enable Camry Home if desired. Enabling it checks that the exact stock Launcher3 and Android Home settings are available; it does not silently select CarMode as the default launcher. Use the existing **Choose CarMode as Home** action separately. **Open Camry Home** previews the interface without changing Android Home. The Home mode switch returns to OEM forwarding when off.
 
-**ZLink only in Home window** enables Camry Home and window mode. Launching ZLink through CarMode Apps, MODE or Dock returns to Home and requests its window, preserving the selected Activity. Native Home and return from bounded/fullscreen ZLink restore the window automatically. Apps and settings remain accessible; five local Back presses still roll back. External launchers and ZLink's own fullscreen controls remain outside this routing. Firmware can ignore window bounds.
+**ZLink only in Home window** enables Camry Home and window mode. Launching ZLink through CarMode Apps, MODE or Dock returns to Home and requests its window, preserving the selected Activity. Native Home and return from bounded/fullscreen ZLink restore the window automatically. Apps and settings remain accessible; five local Back presses still roll back. For fullscreen ZLink auto-connect outside CarMode, manually enable the existing CarMode Accessibility service using the entry shown under this switch. It checks focused window package/bounds and requests return through Home, capped at three corrections per service/settings session. Toggle Home-only off/on to reset an exhausted cap. Cameras and unrelated apps remain untouched. Firmware can still ignore window bounds.
 
 **Auto-launch Android Auto on startup** is independent of the MODE startup switch and defaults to off. It only launches from the visible Home Activity, after a short UI delay, never from a boot receiver/service. In OEM mode a temporary Camry startup screen hosts the attempt, then returns to OEM on Back or after a failed/cancelled attempt. In Camry mode it stays on Camry Home. The selected Android Auto app defaults to `com.zjinnova.zlink`; launch failures leave Home available. Maps, AIMP, phone connection and sound routing remain ZLink responsibilities.
 

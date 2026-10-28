@@ -1,4 +1,4 @@
-# Camry Home — 0.1.38
+# Camry Home — 0.1.39
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -21,6 +21,16 @@ Start with five cells. Filling every existing position exposes one additional em
 The initial layout always contains five cells. Empty positions in that five-cell layout stay in place until all five are filled. Filling the fifth app exposes a sixth empty add cell, then each filled tail exposes another one. Once the saved list has expanded beyond five, removal compacts the remaining apps in order, keeps an empty add cell at the end and shrinks towards a five-cell minimum. At five cells, unfilled positions can remain again. Existing expanded layouts with holes normalize when loaded; the next edit removes obsolete stored keys to prevent stale shortcuts from returning after restart. Home and Apps read the same normalized assignments.
 
 184 JVM tests and APK signature checks passed. Preference tests cover the initial five empty cells, sparse five-cell positions, growth, middle/first/last deletion, shrinking to five, cleanup of old keys, reordering, duplicate selection, restart and rollback preservation. The emulator upgrade rendered the existing expanded layout without internal gaps. Evidence: `docs/local/camry-0.1.38-compact-sidebar.png`.
+
+## External ZLink auto-connect correction (0.1.39 / code 40)
+
+The Home-only switch also enables an optional event-driven correction through the existing CarMode Accessibility service. Enable that service manually in Android; Current settings show its availability and a settings entry. Without it, app-level routing still covers only CarMode launches. The service examines the focused application package and window bounds, without reading text or simulating input. A fullscreen selected ZLink package returns through Home and the existing measured launch request. Bounded ZLink, other apps and camera windows are left alone. The observer relies on [interactive Accessibility windows](https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#getWindows()), not global foreground polling.
+
+Corrections are debounced by 250 ms, separated by at least two seconds, and capped at three per Accessibility-service/settings session. Exhaustion reports a message and stops automatic correction; toggling Home-only off/on resets the budget. OEM firmware can still reject or override requested bounds. Disabling Home/window/Home-only or rollback immediately prevents corrections. Accessibility is not required for HCN MODE or ordinary CarMode launches.
+
+188 JVM tests and signature checks passed. The API 29 emulator with Accessibility enabled recorded `camry_zlink_external_fullscreen` followed by a measured window request after OS-caption maximization, and `camry_zlink_guard_paused` after repeated forced fullscreen entries exhausted the cap. Real ZLink auto-connect is a separate head-unit check.
+
+The reported unsolicited camera startup is not attributed to CarMode's BootReceiver: that receiver starts only the MODE runtime. The new observer records `camry_camera_foreground_observed` with boot uptime and an explicitly unknown launch source; camera requests made through CarMode already have action/launch records. A diagnostic export after a failing head-unit reboot is still needed to identify the actual source. Camera windows are not covered or blocked by this correction.
 
 ## Components and lifetime
 
@@ -148,7 +158,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.38-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.39-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

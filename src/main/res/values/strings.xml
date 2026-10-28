@@ -221,7 +221,10 @@
     <string name="camry_system_settings">Android settings</string>
     <string name="camry_window_not_ready">Home layout is not ready. Tap the ZLink area to try again.</string>
     <string name="camry_zlink_home_only">ZLink only in Home window</string>
-    <string name="camry_zlink_home_only_hint">Enables Camry Home and window mode. ZLink launches from CarMode Apps, MODE and Dock go to Home. Other launchers and ZLink controls can still be affected by head-unit firmware.</string>
+    <string name="camry_zlink_home_only_hint">Enables Camry Home and window mode. CarMode launches go to Home. To restore ZLink after its own fullscreen auto-connect, enable the CarMode Accessibility service in Android. Firmware can still refuse window bounds.</string>
+    <string name="camry_zlink_guard_missing">For ZLink auto-connect outside CarMode, enable the CarMode Accessibility service. Without it, only launches through CarMode are redirected.</string>
+    <string name="camry_zlink_guard_active">ZLink auto-connect correction is available through Accessibility. Up to three fullscreen corrections per service/settings session; camera windows are left alone.</string>
+    <string name="camry_zlink_guard_limit">ZLink repeatedly opened fullscreen. Automatic correction paused to avoid a launch loop. Toggle ZLink only in Home off and on to retry.</string>
     <string name="camry_pin_choose">Choose an app to pin</string>
     <string name="camry_pin_add">Pin an app</string>
     <string name="camry_pin_remove">Remove</string>

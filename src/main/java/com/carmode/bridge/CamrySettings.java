@@ -14,6 +14,8 @@ final class CamrySettings {
     private final Prefs prefs;
     private Switch home, auto, dock, window, homeOnly;
     private TextView windowHint;
+    private TextView guardHint;
+    private Button guardSettings;
     private Button target;
     private boolean refreshing;
     private CamrySettings(Activity activity) { this.activity = activity; prefs = new Prefs(activity); }
@@ -47,6 +49,11 @@ final class CamrySettings {
             edit.apply(); refresh();
         });
         homeOnly.setTooltipText(I18n.text(activity, R.string.camry_zlink_home_only_hint));
+        guardHint = CamryUi.text(page, "", 16);
+        guardSettings = CamryUi.button(page, R.string.grant_accessibility, () -> {
+            try { activity.startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)); }
+            catch (RuntimeException failure) { CamryControl.error(activity, R.string.camry_launch_failed); }
+        });
         windowHint = CamryUi.text(page, I18n.text(activity, R.string.camry_window_hint), 16);
         dock = toggle(page, R.string.camry_dock, prefs.dockEnabled(), value -> prefs.set("camry_dock", value));
         CamryUi.button(page, R.string.camry_help, () -> Toast.makeText(activity,
@@ -83,6 +90,9 @@ final class CamrySettings {
         home.setChecked(prefs.camryHome()); auto.setChecked(prefs.zlinkAuto()); dock.setChecked(prefs.dockEnabled());
         window.setChecked(prefs.zlinkWindow());
         homeOnly.setChecked(prefs.zlinkHomeOnly());
+        guardHint.setText(I18n.text(activity, ModeService.active() == null ? R.string.camry_zlink_guard_missing : R.string.camry_zlink_guard_active));
+        guardHint.setVisibility(prefs.zlinkHomeOnly() ? android.view.View.VISIBLE : android.view.View.GONE);
+        guardSettings.setVisibility(prefs.zlinkHomeOnly() && ModeService.active() == null ? android.view.View.VISIBLE : android.view.View.GONE);
         windowHint.setVisibility(prefs.zlinkWindow() ? android.view.View.VISIBLE : android.view.View.GONE);
         target.setText(I18n.text(activity, R.string.camry_select_zlink) + "\n" + prefs.zlinkApp());
         refreshing = false;

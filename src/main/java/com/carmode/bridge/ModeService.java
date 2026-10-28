@@ -23,11 +23,14 @@ public final class ModeService extends AccessibilityService {
     private CarModeApp app;
     private MenuController menu;
     private OemDiagnostics oem;
+    private ZlinkWindowGuard zlinkGuard;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable learningExpired = this::updateDiagnosticState;
     private final SharedPreferences.OnSharedPreferenceChangeListener settingsChanged = (prefs, key) -> {
         if ("diagnostics".equals(key)) updateDiagnosticState();
         if ("hcn_mode".equals(key) || "enabled".equals(key)) cancel("input_settings_changed");
+        if (zlinkGuard != null && ("camry_home".equals(key) || "camry_zlink_window".equals(key)
+                || "camry_zlink_home_only".equals(key) || "camry_zlink_app".equals(key))) zlinkGuard.reset();
     };
     private final KeyGate gate = new KeyGate();
     private long learnUntil;
@@ -60,8 +63,10 @@ public final class ModeService extends AccessibilityService {
         if (app.recovering()) { instance = this; return; }
         if (menu != null) menu.cancel("service_reconnected");
         if (oem != null) oem.stop("service_reconnected");
+        if (zlinkGuard != null) zlinkGuard.close();
         instance = this; app = CarModeApp.from(this); menu = new MenuController(this);
         oem = new OemDiagnostics(this, app.log());
+        zlinkGuard = new ZlinkWindowGuard(this); zlinkGuard.inspect();
         app.prefs().data.registerOnSharedPreferenceChangeListener(settingsChanged);
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF); filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
@@ -166,6 +171,7 @@ public final class ModeService extends AccessibilityService {
         return false;
     }
     @Override public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (zlinkGuard != null) zlinkGuard.event(event);
         if (!diagnosticActive()) return;
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || event.getEventType() == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
             app.log().record("window", "event_type", event.getEventType(), "window_id", event.getWindowId(),
@@ -211,6 +217,7 @@ public final class ModeService extends AccessibilityService {
         if (oem != null) oem.stop("service_interrupted");
     }
     @Override public boolean onUnbind(Intent intent) {
+        if (zlinkGuard != null) zlinkGuard.close();
         if (instance == this) instance = null;
         ServiceEvidence.record(this, "accessibility_unbound");
         cancel("accessibility_unbound"); handler.removeCallbacks(learningExpired); learnUntil = 0;
@@ -219,6 +226,7 @@ public final class ModeService extends AccessibilityService {
         return super.onUnbind(intent); // System owns rebind; never toggle the user's permission.
     }
     @Override public void onDestroy() {
+        if (zlinkGuard != null) zlinkGuard.close();
         if (app != null && !app.recovering()) app.diagnostics().accessibilityUnavailable("service_destroyed");
         cancel("service_destroyed");
         handler.removeCallbacks(learningExpired);

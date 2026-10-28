@@ -10,6 +10,12 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.39
+
+- Extend Home-only routing to externally launched fullscreen ZLink when the user enables the existing CarMode Accessibility service. Observe only focused application package/bounds, debounce window events, and return via the existing measured Home launch. Bounded ZLink, Apps, cameras and unrelated packages are left alone. Limit correction to three attempts per service/settings session with a two-second cooldown; report exhaustion instead of looping when firmware refuses bounds.
+- Show Accessibility availability and a system-settings entry next to Home-only mode. This optional correction does not make Accessibility mandatory for HCN MODE or ordinary CarMode launches.
+- Record observed foreground camera package/boot uptime without asserting its launch source. BootReceiver does not launch camera Activities. The reported unsolicited head-unit camera startup remains unresolved pending a diagnostic export; no camera takeover/blocking is added.
+
 ## 0.1.38
 
 - Keep a minimum of five shortcut cells. Preserve empty positions while the initial five-cell list is not full. Once expanded beyond five, removal compacts assigned apps in order and keeps an empty add cell at the end, shrinking back to five cells when appropriate. Normalize holes in legacy expanded layouts and remove obsolete stored keys on edit to prevent shortcuts returning after restart. Preserve swapping, moving to the end, duplicate selection, shared Home/Apps state and scrolling without scrollbars.

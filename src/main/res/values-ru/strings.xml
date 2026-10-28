@@ -221,7 +221,10 @@
     <string name="camry_system_settings">Настройки Android</string>
     <string name="camry_window_not_ready">Разметка Home ещё не готова. Нажмите область ZLink повторно.</string>
     <string name="camry_zlink_home_only">ZLink только в окне Home</string>
-    <string name="camry_zlink_home_only_hint">Включает Camry Home и оконный режим. Запуски ZLink через Apps, MODE и Dock в CarMode ведут на Home. Запуски из других лаунчеров и собственные кнопки ZLink зависят от прошивки магнитолы.</string>
+    <string name="camry_zlink_home_only_hint">Включает Camry Home и оконный режим. Запуски CarMode ведут на Home. Для возврата после собственного полноэкранного автоконнекта ZLink включите службу специальных возможностей CarMode в Android. Прошивка может игнорировать границы окна.</string>
+    <string name="camry_zlink_guard_missing">Для автоконнекта ZLink вне CarMode включите службу специальных возможностей CarMode. Без неё перенаправляются только запуски через CarMode.</string>
+    <string name="camry_zlink_guard_active">Коррекция автоконнекта ZLink доступна через специальные возможности. До трёх возвратов из полного экрана за сеанс службы/настроек; окна камер не затрагиваются.</string>
+    <string name="camry_zlink_guard_limit">ZLink повторно открывается на весь экран. Автокоррекция остановлена, чтобы избежать цикла запусков. Для повтора выключите и включите «ZLink только в окне Home».</string>
     <string name="camry_pin_choose">Выберите приложение для закрепления</string>
     <string name="camry_pin_add">Закрепить приложение</string>
     <string name="camry_pin_remove">Удалить</string>
