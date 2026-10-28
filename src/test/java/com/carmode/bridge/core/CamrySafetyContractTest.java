@@ -76,6 +76,15 @@ class CamrySafetyContractTest {
         assertTrue(actions.indexOf("DockService.hide(context)") < actions.indexOf("AppResolver.resolve"));
         assertTrue(actions.indexOf("DockService.transition(context)") > actions.indexOf("else context.startActivity(intent)"));
     }
+    @Test void dockAcknowledgesForegroundBeforeRejectingOrStoppingAStart() throws Exception {
+        String service = source("DockService");
+        String command = service.substring(service.indexOf("public int onStartCommand"), service.indexOf("private void stopWhenReady"));
+        assertTrue(command.indexOf("promote();") < command.indexOf("STARTS.delivered"));
+        assertTrue(command.indexOf("promote();") < command.indexOf("hide(this)"));
+        assertFalse(service.contains("context.stopService("));
+        assertTrue(service.contains("STARTS.pending() || STARTS.current(activeRequest)"));
+        assertTrue(service.contains("stopSelfResult(lastStartId)"));
+    }
     @Test void camryLabelsHaveBothLanguagesAndNoDuplicateResourceNames() throws Exception {
         Set<String> en = names("src/main/res/values/strings.xml"), ru = names("src/main/res/values-ru/strings.xml");
         en.removeIf(name -> !name.startsWith("camry_")); ru.removeIf(name -> !name.startsWith("camry_"));

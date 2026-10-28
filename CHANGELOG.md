@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.42
+
+- Fix Dock foreground-service start/stop races: acknowledge foreground in every onStartCommand before any rejection or stop, not only in onCreate. Track outstanding requests and invalidate cancelled generations without stopping the service before delivery. Reject stale requests without cancelling newer sessions, handle failed start calls, and stop with the latest delivered Android startId only when no start remains pending. Hide the overlay immediately when returning to a sidebar. Keep non-sticky lifetime and existing permission/recovery gates.
+
 ## 0.1.41
 
 - Add CarMode settings immediately before Hide in the expanded Dock, using the existing theme icon and the explicit app settings entry. Retain bounded horizontal scrolling on narrow displays.
