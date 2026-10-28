@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.51
+
+- Increase the camera-first startup handoff delay before ZLink from 1.5 to 2.5 seconds. Update both language hints and timing boundary tests. Retain one-shot startup and cancellation behavior.
+
 ## 0.1.50
 
 - Add a separate camera startup switch beside the existing Android Auto startup switch. Enabling camera startup enables Camry Home/window mode and disables the boot-camera return observer. On the first eligible Home window entry per Android boot, launch the configured cameras directly into the measured Home area; if Android Auto startup is also enabled, request ZLink through Home 1.5 seconds after the camera launch request. Camera-only mode has no timed ZLink follow-up. Persist startup claims before launching, keep subsequent explicit Home navigation at default ZLink, and cancel a pending handoff on CarMode input, explicit Home/MODE/Dock navigation, relevant settings, screen-off or rollback. The delay does not detect camera/phone readiness and cannot suppress the firmware's independent startup.

@@ -1,4 +1,4 @@
-# Camry Home — 0.1.50
+# Camry Home — 0.1.51
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -51,6 +51,10 @@ The reported Android 10 head-unit crash was `RemoteServiceException: Context.sta
 Dock now promotes in onCreate and at the start of every onStartCommand, before cancellation, permission checks or stopping. A process-local ForegroundStartQueue assigns request tokens and tracks all undelivered starts. Hiding immediately removes the overlay and invalidates visibility requests, but does not stop the service until those commands are acknowledged. Stale delivery cannot cancel a newer session. Failed start calls remove their queue entries. Stopping uses the latest delivered Android startId with [stopSelfResult](https://developer.android.com/reference/android/app/Service#stopSelfResult(int)), rather than unconditional Context.stopService. Non-sticky lifetime, notification Close, manual/automatic policy, screen-off and recovery remain intact.
 
 Validation: 196 JVM tests, bytecode guards and APK signature passed. Six queue regressions cover cancel-before-create, start/hide/start, multiple pending starts, failed old/current starts and duplicate delivery; the service contract requires foreground acknowledgement before rejection. An emulator-only instrumentation APK signed with the local debug key invoked the real service start/hide entry points on the Android main thread: 90 foreground start requests over 30 rounds, immediate cancellations and alternating active restarts. The run passed with the pending queue drained and no crash. Ordinary camera-to-Dock and Apps-sidebar-to-hidden transitions also passed afterward. Test APK removed after the run. Evidence: ignored `docs/local/camry-0.1.42-dock-race-result.log`, `camry-0.1.42-dock-foreground-build.log`, `camry-0.1.42-sidebar-after-race.png`. The exact UIS8581A firmware crash must still be retested on the head unit.
+
+## Startup delay adjustment (0.1.51 / code 52)
+
+The camera-to-ZLink request delay is now 2500 ms. Timing boundary tests and EN/ru hints reflect 2.5 seconds. The original 0.1.50 flow below used 1500 ms; only that delay changes in 0.1.51.
 
 ## Direct camera-first startup (0.1.50 / code 51)
 
@@ -240,7 +244,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.50-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.51-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

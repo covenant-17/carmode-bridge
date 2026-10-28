@@ -178,7 +178,7 @@
     <string name="camry_home_mode">Home mode: Camry (OFF = OEM)</string>
     <string name="camry_auto_zlink">Auto-launch Android Auto on startup</string>
     <string name="camry_auto_camera">Auto-launch cameras on startup</string>
-    <string name="camry_auto_camera_hint">Enables Camry Home and window mode. Once per Android boot, opens the selected camera app in Home first. If Android Auto startup is also enabled, requests ZLink 1.5 seconds later. This is a fixed delay, not a readiness check. Disables the separate camera-return observer.</string>
+    <string name="camry_auto_camera_hint">Enables Camry Home and window mode. Once per Android boot, opens the selected camera app in Home first. If Android Auto startup is also enabled, requests ZLink 2.5 seconds later. This is a fixed delay, not a readiness check. Disables the separate camera-return observer.</string>
     <string name="camry_dock">Allow CarMode Dock (manual sessions)</string>
     <string name="camry_show_dock">Show Dock for this session</string>
     <string name="camry_hide_dock">Close Dock</string>
