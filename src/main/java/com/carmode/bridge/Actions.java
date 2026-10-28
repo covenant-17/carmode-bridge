@@ -20,13 +20,21 @@ public final class Actions implements ActionDispatcher.Port {
         app.log().record(opened ? "menu_open" : "menu_close", "source", source, "reason", reason);
     }
     @Override public void launch(Action action) {
+        // End the old session before resolving camera; show a Camry transition session only after launch succeeds.
+        if (action == Action.CAMERAS) DockService.hide(context);
         String component = ActionDispatcher.target(action, app.prefs().component(action));
         try {
             Intent intent = AppResolver.resolve(context, component);
             // Match the camera macro's Recents behavior for the default camera only.
             if (action == Action.CAMERAS && app.prefs().component(action).trim().isEmpty())
                 intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-            context.startActivity(intent);
+            boolean zlink = CamryNavigation.isZlinkTarget(context, intent);
+            boolean homeOnly = CamryNavigation.homeOnly(context, intent);
+            if (zlink)
+                CamryNavigation.launch(context, intent, null);
+            else context.startActivity(intent);
+            if (action == Action.CAMERAS || (zlink && !homeOnly))
+                DockService.transition(context);
             // Cancel an unsent music request when another destination is selected successfully.
             if (action != Action.MUSIC) app.musicHttp().cancel("other_action_selected");
             app.log().record("launch_requested", "action", action.name(), "target", component,

@@ -36,7 +36,7 @@ public final class MenuView extends View {
             fill(canvas, card, i == selected ? Color.rgb(26, 64, 73) : Color.rgb(28, 39, 55), 16);
             if (i == selected) {
                 paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(3); paint.setColor(accent);
-                canvas.drawRoundRect(card, 16, 16, paint); paint.setStyle(Paint.Style.FILL);
+                canvas.drawRect(card, paint); paint.setStyle(Paint.Style.FILL);
             }
             canvas.save(); canvas.translate(x + 98, 158);
             icon(canvas, i, i == selected ? accent : Color.rgb(167, 183, 203)); canvas.restore();
@@ -63,7 +63,7 @@ public final class MenuView extends View {
         paint.setStyle(Paint.Style.FILL);
     }
     private void fill(Canvas c, RectF rect, int color, float radius) {
-        paint.setColor(color); paint.setStyle(Paint.Style.FILL); c.drawRoundRect(rect, radius, radius, paint);
+        paint.setColor(color); paint.setStyle(Paint.Style.FILL); c.drawRect(rect, paint);
     }
     private void text(Canvas c, String text, float x, float y, float size, int color) {
         paint.setColor(color); paint.setTextSize(size); c.drawText(text, x, y, paint);

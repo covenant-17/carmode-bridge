@@ -1,21 +1,23 @@
 package com.carmode.bridge;
 
-import android.app.Activity;
 import android.content.*;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.provider.Settings;
-import android.widget.*;
 import com.carmode.bridge.core.HomeProxyFlow;
 import com.carmode.bridge.core.HomeReturnPolicy;
 import com.carmode.bridge.core.HomeNavigation;
 
-/** Optional HOME entry. No menu selection, settings mutation or implicit HOME recursion. */
-public final class HomeProxyActivity extends Activity {
+/** Existing HOME entry with OEM forwarding or opt-in Camry UI; never implicit HOME recursion. */
+public final class HomeProxyActivity extends CamryActivity {
+    private CamryHome camry;
+    private boolean startupOnly, startupWasPaused;
     private final Handler handler = new Handler();
     private final HomeReturnPolicy returns = new HomeReturnPolicy();
     private boolean handedOff, needsReturn, resumed, receiverRegistered;
+    private final Runnable startupFallback = () -> {
+        if (resumed && startupOnly && hasWindowFocus()) { clearCamry(); route(); }
+    };
     private final Runnable handoffTimeout = () -> {
         if (resumed && handedOff && !isFinishing()) {
             HomeBridge.logEntry(this, "handoff_not_paused"); showRecovery();
@@ -54,26 +56,47 @@ public final class HomeProxyActivity extends Activity {
         returns.explicitNavigation(); route();
     }
     @Override protected void onNewIntent(Intent intent) {
+        CamryHome.cancelStartup();
+        CarModeApp.from(this).backSequence.reset();
         super.onNewIntent(intent); setIntent(intent);
         handler.removeCallbacks(returnToOem); needsReturn = false;
         returns.explicitNavigation(); route();
     }
     @Override protected void onResume() {
         super.onResume(); resumed = true;
+        CarModeApp app = CarModeApp.from(this);
+        if (camry != null && (app.recovering() || (startupOnly ? startupWasPaused : !app.prefs().camryHome()))) {
+            clearCamry(); route();
+        } else if (camry != null) camry.resume();
         // Keep the old fallback only when the OEM signal has not arrived yet.
         if (needsReturn) handler.postDelayed(returnToOem, returns.returnDelayMs(SystemClock.elapsedRealtime()));
         HomeBridge.logEntry(this, "resume");
     }
     @Override protected void onPause() {
+        if (startupOnly) startupWasPaused = true;
+        handler.removeCallbacks(startupFallback);
+        if (camry != null) camry.pause();
         resumed = false; handler.removeCallbacks(returnToOem); handler.removeCallbacks(handoffTimeout);
         if (handedOff) needsReturn = true;
         HomeBridge.logEntry(this, "pause"); super.onPause();
     }
-    @Override public void onBackPressed() {
+    @Override protected void onStop() {
+        super.onStop();
+        if (camry != null && !startupOnly) camry.stopped();
+    }
+    @Override public void onWindowFocusChanged(boolean focused) {
+        super.onWindowFocusChanged(focused);
+        if (camry != null && !startupOnly) camry.focusChanged(focused);
+    }
+    @Override protected void normalBack() {
+        if (camry != null && !startupOnly) { camry.back(); return; }
+        if (startupOnly) clearCamry();
         handler.removeCallbacks(returnToOem); needsReturn = false; returns.explicitNavigation();
         setIntent(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)); route();
     }
     @Override protected void onDestroy() {
+        handler.removeCallbacks(startupFallback);
+        if (camry != null) camry.close();
         handler.removeCallbacks(returnToOem); handler.removeCallbacks(handoffTimeout);
         if (receiverRegistered) unregisterReceiver(freeform);
         HomeBridge.logEntry(this, "destroy"); super.onDestroy();
@@ -95,6 +118,34 @@ public final class HomeProxyActivity extends Activity {
         HomeProxyFlow.run(autoStart, app.recovering(), ModeRuntimeService.active() != null, new HomeProxyFlow.Port() {
             public void startRuntime() { ModeRuntimeService.sync(HomeProxyActivity.this, "home_proxy"); }
             public void forwardOem() {
+                if (!app.recovering() && app.prefs().camryHome()) {
+                    startupOnly = false; startupWasPaused = false; handler.removeCallbacks(startupFallback);
+                    handedOff = false; needsReturn = false;
+                    handler.removeCallbacks(returnToOem); handler.removeCallbacks(handoffTimeout);
+                    try {
+                        if (camry == null) camry = new CamryHome(HomeProxyActivity.this);
+                        boolean apps = HomeNavigation.ALL_APPS.equals(HomeBridge.forward(getIntent()).getAction());
+                        camry.show(false);
+                        if (apps) camry.openApps();
+                        else camry.startup(true);
+                        app.log().record("camry_home_shown", "apps", apps);
+                    } catch (RuntimeException failure) {
+                        clearCamry(); throw failure;
+                    }
+                    return;
+                }
+                clearCamry();
+                if (!app.recovering() && app.prefs().zlinkAuto()
+                        && !HomeNavigation.ALL_APPS.equals(HomeBridge.forward(getIntent()).getAction())) {
+                    camry = new CamryHome(HomeProxyActivity.this);
+                    if (camry.startup(false)) {
+                        startupOnly = true;
+                        camry.show(false);
+                        handler.postDelayed(startupFallback, 1100);
+                        return;
+                    }
+                    clearCamry();
+                }
                 if (!HomeBridge.available(HomeProxyActivity.this)) throw new IllegalStateException("OEM launcher unavailable");
                 Intent forwarded = HomeBridge.forward(getIntent());
                 forwarded.addFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME);
@@ -110,28 +161,19 @@ public final class HomeProxyActivity extends Activity {
             }
             public void recovery() { showRecovery(); }
             public void retainHome() {
+                if (camry != null) return;
                 handedOff = true; HomeBridge.logEntry(HomeProxyActivity.this, "home_retained");
                 handler.removeCallbacks(handoffTimeout); handler.postDelayed(handoffTimeout, 1500);
             }
         });
     }
     private void showRecovery() {
+        clearCamry();
+        CamryControl.recovery(this);
+    }
+    void clearCamry() {
+        handler.removeCallbacks(startupFallback); startupOnly = false; startupWasPaused = false;
+        if (camry != null) { camry.close(); camry = null; }
         handedOff = false; needsReturn = false; handler.removeCallbacks(returnToOem); handler.removeCallbacks(handoffTimeout);
-        LinearLayout page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL);
-        page.setPadding(24, 24, 24, 24);
-        page.setBackgroundColor(android.graphics.Color.rgb(15, 23, 35));
-        TextView message = new TextView(this); message.setText(I18n.text(this, R.string.home_forward_failed)); page.addView(message);
-        Button settings = new Button(this); settings.setText(I18n.text(this, R.string.home_restore));
-        settings.setOnClickListener(view -> {
-            try { startActivity(new Intent(Settings.ACTION_HOME_SETTINGS)); }
-            catch (RuntimeException e) { Toast.makeText(this, I18n.text(this, R.string.home_settings_failed), Toast.LENGTH_LONG).show(); }
-        }); page.addView(settings);
-        Button app = new Button(this); app.setText("CarMode Bridge");
-        app.setOnClickListener(view -> startActivity(new Intent(this, LauncherActivity.class))); page.addView(app);
-        Button retry = new Button(this); retry.setText("Launcher");
-        retry.setOnClickListener(view -> {
-            returns.explicitNavigation(); setIntent(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)); route();
-        }); page.addView(retry);
-        setContentView(page);
     }
 }

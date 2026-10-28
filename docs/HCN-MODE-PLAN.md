@@ -1,6 +1,6 @@
 # HCN MODE: implementation A and deferred plan B
 
-Current status (0.1.22): Plan A is the working device-reported MODE implementation; startup and stock-grid handoff use the user-approved [Home proxy](HOME-PROXY.md). The checklist below remains useful for regressions, but its original “unverified” wording describes the implementation-stage test boundary. Plan B has not been implemented and is not a fallback selected automatically.
+Current status (0.1.23): Plan A is the working device-reported MODE implementation; startup and stock-grid handoff use the user-approved [Home proxy](HOME-PROXY.md). Optional [Camry Home](CAMRY-HOME.md) leaves this MODE route intact. The checklist below remains useful for regressions, but its original “unverified” wording describes the implementation-stage test boundary. Plan B has not been implemented and is not a fallback selected automatically.
 
 ## Shared behavior
 

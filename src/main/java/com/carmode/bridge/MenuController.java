@@ -26,6 +26,7 @@ public final class MenuController {
     }
     public boolean isOpen() { return session.isOpen(); }
     public boolean press(String newSource) {
+        CamryHome.cancelStartup();
         expire();
         if (!Settings.canDrawOverlays(context)) {
             cancel("overlay_permission_missing");

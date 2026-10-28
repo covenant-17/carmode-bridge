@@ -1,6 +1,6 @@
-# Optional Home proxy — 0.1.20
+# Optional Home proxy — 0.1.23
 
-Current status (0.1.22): the user confirmed startup with Home proxy 0.1.15, the restored stock grid in 0.1.19, and acceptable navigation in 0.1.20. The retained opaque Home implementation below remains current; sections labelled 0.1.15–0.1.18 document superseded experiments, not instructions to restore finish/transparency behaviour. No claim is made for every device, privileged Recents integration or all vendor gestures.
+Current status (0.1.23): OEM mode remains the default and retains the user-confirmed startup from 0.1.15, restored stock grid from 0.1.19 and acceptable navigation from 0.1.20. Optional Camry Home renders in the same HomeProxyActivity; see [Camry architecture and acceptance](CAMRY-HOME.md). New features are off until explicitly enabled. Sections labelled 0.1.15–0.1.18 document superseded experiments, not instructions to restore finish/transparency behaviour. No claim is made for every device, privileged Recents integration or all vendor gestures.
 
 ## Warm handoff optimization (0.1.20)
 

@@ -14,6 +14,8 @@ This audit describes the 0.1.8 lifetime separation. The independent HCN foregrou
 
 ModeRuntimeService owns the only HCN receiver, HCN overlay and screen-close cancellation. It uses an ongoing low-priority notification, START_STICKY and explicit stopWithTask=false. onTaskRemoved records evidence without stopping the service. Activity destruction neither unregisters its receiver nor stops its timer.
 
+Since 0.1.23 the optional manual Camry Dock uses a separate non-sticky DockService and notification. It does not own or stop MODE. Closing settings preserves a running manual session, while camera actions through CarMode, screen-off, lost overlay permission, configuration changes and Camry rollback remove it. Boot does not restore it. See [Camry Home](CAMRY-HOME.md) for camera limitations and acceptance.
+
 The service starts from app launch, relevant settings changes, permitted Accessibility connection, BOOT_COMPLETED and MY_PACKAGE_REPLACED. Boot/update require auto-start. Normal handling respects enabled/auto-start/manual activation; diagnostic recording may keep a passive receiver alive with handling disabled. Turning off handling and recording stops only ModeRuntimeService via stopService. A sticky restart with no remaining work, or pending crash recovery, uses stopSelf; neither targets Accessibility.
 
 Accessibility remains responsible only for learned KeyEvent and window inspection. HCN input does not need it and survives its unbind/destroy while the runtime remains alive. MODE/no-press/other-button guided scenarios can run using HCN without Accessibility; keyboard/legacy key tests still require it. No duplicate HCN registration is kept in ModeService.

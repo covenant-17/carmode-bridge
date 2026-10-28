@@ -1,6 +1,6 @@
 # Native actions — 0.1.9
 
-Current status (0.1.22): app assignments use only three app pickers; no separate launch-test/manual-component controls remain. Music HTTP is implemented as an optional action since 0.1.17, and successful launches no longer show the obsolete ZLink explanation. Sections describing 0.1.9 buttons or the initially excluded HTTP request are historical, superseded by the updates below. Tablet MacroDroid modes remain removed.
+Current status (0.1.23): MODE assignments still use three app pickers; no separate MODE launch-test/manual-component controls remain. Optional [Camry Home](CAMRY-HOME.md) has a separate Android Auto app selector and manual Home/Dock actions. Music HTTP is implemented as an optional action since 0.1.17, and successful launches no longer show the obsolete ZLink explanation. Sections describing 0.1.9 buttons or the initially excluded HTTP request are historical, superseded by the updates below. Tablet MacroDroid modes remain removed.
 
 HTTP update in 0.1.17: the user clarified that the phone receives the request and offers music playback. The outgoing GET from Music.macro is now an optional, default-off post-Music action with an editable address, implemented without MacroDroid on the tablet. Details and differences from the macro: [MUSIC-HTTP.md](MUSIC-HTTP.md). Earlier “not transferred” descriptions below apply to versions through 0.1.16; other excluded macro actions remain excluded.
 

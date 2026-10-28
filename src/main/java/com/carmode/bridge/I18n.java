@@ -9,7 +9,8 @@ final class I18n {
     private I18n() {}
     static Context wrap(Context context) {
         Configuration config = new Configuration(context.getResources().getConfiguration());
-        config.setLocale(new Locale(new Prefs(context).language()));
+        try { config.setLocale(new Locale(new Prefs(context).language())); }
+        catch (RuntimeException storageFailure) { config.setLocale(Locale.ENGLISH); }
         return context.createConfigurationContext(config);
     }
     static String text(Context context, int resource, Object... args) {

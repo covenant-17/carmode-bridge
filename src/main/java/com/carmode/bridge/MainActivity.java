@@ -1,6 +1,5 @@
 package com.carmode.bridge;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.ClipData;
@@ -28,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public final class MainActivity extends Activity {
+public final class MainActivity extends CamryActivity {
     private CarModeApp app;
     private Prefs prefs;
     private LinearLayout content;
@@ -38,6 +37,7 @@ public final class MainActivity extends Activity {
     private TextView homeStatus;
     private boolean exportingOem;
     private boolean archived;
+    private CamrySettings camrySettings;
     private boolean exportingZlink;
     private Button copyZlinkButton, shareZlinkButton;
     private boolean exportingFactory;
@@ -103,6 +103,7 @@ public final class MainActivity extends Activity {
         render();
     }
     private void render() {
+        camrySettings = null;
         if (hintToast != null) { hintToast.cancel(); hintToast = null; }
         touchingLogs = false; selectingLogs = false;
         accessibilityButton = null; overlayButton = null; exportOemButton = null;
@@ -165,8 +166,9 @@ public final class MainActivity extends Activity {
         homeButton = button(getString(R.string.home_choose), this::requestHomeProxy);
         button(getString(R.string.home_restore), () -> {
             app.log().record("home_restore_settings_opened", "home_state", HomeBridge.snapshot(this));
-            openSettings(new Intent(Settings.ACTION_HOME_SETTINGS));
+            CamryControl.chooseStock(this);
         });
+        camrySettings = CamrySettings.render(this, content);
         heading(getString(R.string.mode_button));
         toggle(getString(R.string.hcn_mode), prefs.hcnMode(), value -> {
             cancelMenus("hcn_mode_changed"); prefs.set("hcn_mode", value);
@@ -676,6 +678,7 @@ public final class MainActivity extends Activity {
         super.onResume(); handler.removeCallbacks(refresh);
         HomeBridge.logEntry(this, "resume");
         if (preview != null) {
+            if (camrySettings != null) camrySettings.refresh();
             ServiceEvidence.record(this, "activity_resumed");
             ModeRuntimeService.sync(this, "activity_resumed"); refresh.run();
         }
@@ -689,14 +692,14 @@ public final class MainActivity extends Activity {
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent); setIntent(intent);
         HomeBridge.logEntry(this, "new_intent");
-        redirectNavigation(intent);
+        if (!redirectNavigation(intent) && app != null) { render(); refreshText(); }
     }
     private boolean redirectNavigation(Intent intent) {
         if (!HomeBridge.navigation(intent)) return false;
         startActivity(HomeBridge.proxy(this, intent));
         finish(); return true;
     }
-    @Override public void onBackPressed() { cancelMenus("system_back"); super.onBackPressed(); }
+    @Override protected void normalBack() { cancelMenus("system_back"); super.normalBack(); }
     @Override protected void onDestroy() {
         if (app != null && !app.recovering()) app.log().record("activity_destroyed", "finishing", isFinishing(),
                 "changing_configuration", isChangingConfigurations(), "task_id", getTaskId(), "service_state", ServiceEvidence.capture(this));

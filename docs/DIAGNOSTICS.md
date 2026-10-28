@@ -1,6 +1,6 @@
 # Diagnostics, recovery and APK export
 
-This guide describes the current 0.1.22 UI. Recording controls are available in Current/Archive; guided tests, detailed selectable logs, optional Accessibility tools and APK exports are in **Archive**. All tests must be performed while parked.
+This guide describes the diagnostic UI retained in 0.1.23. Recording controls are available in Current/Archive; guided tests, detailed selectable logs, optional Accessibility tools and APK exports are in **Archive**. Optional [Camry Home and Dock](CAMRY-HOME.md) add Current-tab controls without moving these tools. All tests must be performed while parked.
 
 ## Recording a live MODE or navigation problem
 

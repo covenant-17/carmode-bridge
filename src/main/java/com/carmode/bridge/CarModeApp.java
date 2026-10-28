@@ -3,12 +3,17 @@ package com.carmode.bridge;
 import android.app.Application;
 
 public final class CarModeApp extends Application {
+    final com.carmode.bridge.core.BackSequence backSequence = new com.carmode.bridge.core.BackSequence();
     private boolean recovering;
     private Prefs prefs;
     private EventLog log;
     private DiagnosticScenarios diagnostics;
     private MusicHttpAction musicHttp;
     private final android.content.SharedPreferences.OnSharedPreferenceChangeListener runtimeSettings = (data, key) -> {
+        if ("camry_home".equals(key) || "camry_zlink_auto".equals(key) || "camry_zlink_app".equals(key)
+                || "camry_zlink_window".equals(key) || "camry_zlink_home_only".equals(key)) CamryHome.cancelStartup();
+        if ("camry_home".equals(key) || "camry_dock".equals(key) || "camry_dock_position".equals(key) || "camry_dock_opacity".equals(key) || "language".equals(key))
+            if (DockService.active() != null) DockService.active().settingsChanged();
         if (musicHttp != null && ("enabled".equals(key) || "auto_start".equals(key)
                 || "hcn_mode".equals(key) || "music_http_enabled".equals(key) || "music_http_url".equals(key)))
             musicHttp.cancel("settings_changed");

@@ -1,9 +1,10 @@
 # CarMode Bridge — specification and implementation plan
 
-This English specification preserves the original goals and investigation routes, while separating them from the implemented product. Current application version: **0.1.22 / versionCode 23**. The README describes operational behaviour; historical proposals below are not claims of shipped functionality.
+This English specification preserves the original goals and investigation routes, while separating them from the implemented product. Current application version: **0.1.23 / versionCode 24**. The README describes operational behaviour; historical proposals below are not claims of shipped functionality.
 
 ## Current implementation and device results
 
+- Version 0.1.23 adds optional Camry Home, manual Dock sessions, bounded ZLink startup and durable OEM rollback. These additions retain the existing HOME component and MODE runtime; [architecture and acceptance](CAMRY-HOME.md) separate implementation from outstanding head-unit checks.
 - **HCN Plan A is implemented:** receive the OEM MODE broadcast and show our own menu. Plan B, modifying AutoSource resources/code, remains deferred. These Plan A/B names are separate from the original input strategies A/B/C in section 4.
 - Since 0.1.8, a separate foreground runtime owns HCN handling and the overlay. Accessibility is optional, not a dependency of the working HCN path.
 - Since 0.1.9, destination apps launch directly without MacroDroid on the tablet. Defaults are `ivicar.cn.ivicaravm` for Camera and `com.zjinnova.zlink` for Music/Maps. Explicit saved assignments are preserved.

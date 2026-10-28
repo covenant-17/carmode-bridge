@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.carmode.bridge" android:versionCode="23" android:versionName="0.1.22">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.carmode.bridge" android:versionCode="32" android:versionName="0.1.31">
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="29" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -12,6 +12,10 @@
             <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity>
         <activity android:name=".MainActivity" android:exported="true" />
+        <activity android:name=".CamryPreviewActivity" android:exported="false" />
+        <activity android:name=".CamryAppsActivity" android:exported="false" android:launchMode="singleTask"
+            android:taskAffinity="com.carmode.bridge.apps" android:resizeableActivity="false" android:excludeFromRecents="true" />
+        <service android:name=".DockService" android:exported="false" android:stopWithTask="false" />
         <activity android:name=".HomeProxyActivity" android:exported="true" android:label="CarMode Bridge"
             android:theme="@style/HomeProxyTheme"
             android:launchMode="singleTask" android:taskAffinity="com.carmode.bridge.home" android:excludeFromRecents="true">

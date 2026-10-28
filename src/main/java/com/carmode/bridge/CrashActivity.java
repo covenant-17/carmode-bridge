@@ -59,7 +59,10 @@ public final class CrashActivity extends Activity {
             startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)); finish();
         });
         TextView trace = text(report, 13); trace.setTextIsSelectable(true);
+        button(label("Restore previous CarMode behavior", "Вернуть прежний режим CarMode"), () -> CamryControl.restore(this));
+        button(label("Choose stock Android launcher", "Выбрать штатный лаунчер Android"), () -> CamryControl.chooseStock(this));
     }
+    @Override protected void onResume() { super.onResume(); CamryUi.navigation(this); CamryControl.checkStock(this); }
     private String label(String en, String russian) { return ru ? russian : en; }
     private TextView text(String value, int size) {
         TextView view = new TextView(this); view.setText(value); view.setTextSize(size); content.addView(view); return view;
