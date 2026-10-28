@@ -25,6 +25,7 @@ public final class Actions implements ActionDispatcher.Port {
         String component = ActionDispatcher.target(action, app.prefs().component(action));
         try {
             Intent intent = AppResolver.resolve(context, component);
+            CameraBootReturn.manual(context, intent);
             // Match the camera macro's Recents behavior for the default camera only.
             if (action == Action.CAMERAS && app.prefs().component(action).trim().isEmpty())
                 intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);

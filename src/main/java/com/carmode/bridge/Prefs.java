@@ -36,6 +36,7 @@ public final class Prefs {
     public boolean zlinkWindow() { return data.getBoolean("camry_zlink_window", false); }
     public boolean zlinkHomeOnly() { return data.getBoolean("camry_zlink_home_only", false); }
     public boolean allAppsWindow() { return data.getBoolean("camry_all_apps_window", false); }
+    public boolean cameraBootReturn() { return data.getBoolean("camry_camera_boot_return", false); }
     public boolean dockEnabled() { return data.getBoolean("camry_dock", false); }
     public String zlinkApp() { return data.getString("camry_zlink_app", "com.zjinnova.zlink"); }
     public String dockPosition() {
@@ -50,7 +51,8 @@ public final class Prefs {
         // One durable edit. Never touch MODE/runtime settings or app assignments.
         return data.edit().putBoolean("camry_home", false).putBoolean("camry_zlink_auto", false)
                 .putBoolean("camry_dock", false).putBoolean("camry_zlink_window", false)
-                .putBoolean("camry_zlink_home_only", false).putBoolean("camry_all_apps_window", false).commit();
+                .putBoolean("camry_zlink_home_only", false).putBoolean("camry_all_apps_window", false)
+                .putBoolean("camry_camera_boot_return", false).commit();
     }
 
     String[] pinnedApps() {

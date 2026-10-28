@@ -227,6 +227,11 @@
     <string name="camry_all_apps_window">Все приложения в окне Home</string>
     <string name="camry_all_apps_window_hint">Открывает приложения, запущенные через CarMode, в области Home. Включает Camry Home и оконный режим. Другие приложения и система могут запускаться на весь экран или игнорировать заданный размер.</string>
     <string name="camry_app_window_area">%1$s\nНажмите, чтобы открыть</string>
+    <string name="camry_camera_boot_return">Вернуть Home при первом запуске камер после загрузки</string>
+    <string name="camry_camera_boot_return_hint">В первые две минуты после загрузки Android один раз возвращает Home с ZLink при появлении камер. Нужен доступ к статистике использования и показ поверх приложений. Не отличает автозапуск от задней передачи. Открытие камер через CarMode отменяет возврат для текущей загрузки.</string>
+    <string name="camry_usage_access">Разрешить доступ к статистике для CarMode Bridge</string>
+    <string name="camry_usage_access_granted">Доступ к статистике разрешён — открыть настройки</string>
+    <string name="camry_usage_unavailable">Настройки доступа к статистике недоступны на этом устройстве.</string>
     <string name="camry_pin_choose">Выберите приложение для закрепления</string>
     <string name="camry_pin_add">Закрепить приложение</string>
     <string name="camry_pin_remove">Удалить</string>

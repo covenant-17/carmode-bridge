@@ -1,4 +1,4 @@
-# Camry Home — 0.1.47
+# Camry Home — 0.1.48
 
 Camry is an optional mode inside the existing APK. OEM forwarding remains the default. New Home, Dock and ZLink-startup preferences default to off and do not migrate or overwrite MODE assignments.
 
@@ -51,6 +51,16 @@ The reported Android 10 head-unit crash was `RemoteServiceException: Context.sta
 Dock now promotes in onCreate and at the start of every onStartCommand, before cancellation, permission checks or stopping. A process-local ForegroundStartQueue assigns request tokens and tracks all undelivered starts. Hiding immediately removes the overlay and invalidates visibility requests, but does not stop the service until those commands are acknowledged. Stale delivery cannot cancel a newer session. Failed start calls remove their queue entries. Stopping uses the latest delivered Android startId with [stopSelfResult](https://developer.android.com/reference/android/app/Service#stopSelfResult(int)), rather than unconditional Context.stopService. Non-sticky lifetime, notification Close, manual/automatic policy, screen-off and recovery remain intact.
 
 Validation: 196 JVM tests, bytecode guards and APK signature passed. Six queue regressions cover cancel-before-create, start/hide/start, multiple pending starts, failed old/current starts and duplicate delivery; the service contract requires foreground acknowledgement before rejection. An emulator-only instrumentation APK signed with the local debug key invoked the real service start/hide entry points on the Android main thread: 90 foreground start requests over 30 rounds, immediate cancellations and alternating active restarts. The run passed with the pending queue drained and no crash. Ordinary camera-to-Dock and Apps-sidebar-to-hidden transitions also passed afterward. Test APK removed after the run. Evidence: ignored `docs/local/camry-0.1.42-dock-race-result.log`, `camry-0.1.42-dock-foreground-build.log`, `camry-0.1.42-sidebar-after-race.png`. The exact UIS8581A firmware crash must still be retested on the head unit.
+
+## One-shot boot-camera return (0.1.48 / code 49)
+
+Current adds Return Home after first boot-time camera launch, off by default. Enabling it enables Home/window mode. Its adjacent button opens Android Usage access settings; the app cannot grant this access itself. The existing foreground runtime starts a 500 ms UsageEvents check only while the feature is enabled, Home is enabled, no recovery is pending, a readable BOOT_COUNT differs from the stored claim, and elapsed boot time is below 120 seconds. The runtime can remain available for this brief check independently of MODE input readiness. No Accessibility dependency, extra service or Back injection was added.
+
+The observer reads the most recent ACTIVITY_RESUMED/ACTIVITY_PAUSED sequence in the two-minute event window. It navigates only if the resulting foreground package matches the current Camera assignment, Usage access and overlay permission are granted, and the screen is interactive and unlocked. A synchronous boot claim precedes one explicit MAIN/HOME request without a camera target, so Home opens its default ZLink window. Rejected navigation is not retried. Polling stops after the claim, timeout or disabled settings. MODE/Dock, Apps and pinned camera selections consume the same claim without redirecting, preserving deliberate CarMode camera use. Restarting the process or toggling the switch cannot reset a consumed boot claim. Home off and rollback clear the feature switch but preserve assignments and the marker.
+
+The first external camera appearance cannot be attributed to auto-start versus reverse gear. It may be redirected even when caused by reverse gear during the first two minutes; later appearances are left alone. The observer does not terminate the camera process or measure Android Auto connection time. Usage access may be unavailable or reset by head-unit policy, and the runtime must actually start during the boot window. Device startup should remain enabled.
+
+Validation: 213 JVM tests passed, including durable once-per-boot decisions, new boot versus process recreation, manual consumption, window expiry, unknown boot, recovery/default-off/rollback and failed persistence. Bytecode guards and APK signature verification passed. A real API 29 emulator reboot was used: with the switch enabled, missing Usage access logged unavailability; granting the permission at about 55 seconds caused exactly one Home/ZLink return from the camera fixture. A second external camera launch stayed open. After force-stopping/reopening CarMode, another camera launch also stayed open with the same boot claim. The emulator switch and app-op were restored to their original off/default state. Head-unit permission persistence and any connection-speed improvement remain unverified. Evidence: `docs/local/camry-0.1.48-camera-return-settings.png`, `camry-0.1.48-first-camera-return.png`, `camry-0.1.48-second-camera-kept.png`, `camry-0.1.48-after-process-restart-camera-kept.png`, and `camry-0.1.48-events.jsonl`.
 
 ## All apps window switch (0.1.47 / code 48)
 
@@ -210,7 +220,7 @@ On the head unit, while parked:
 6. Verify visible and usable Back, Home and Recents from Home, settings, ZLink and cameras with expanded/collapsed Dock. Check installed-app grid and OEM freeform navigation separately from Recents.
 7. Complete the full rollback: disable new functions, choose Launcher3 as actual Android Home, verify system Home, uninstall CarMode, and confirm the original launcher remains usable. Also test cancellation/error paths before removal.
 
-Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.47-debug.apk`. A successful build/signature check is not head-unit acceptance.
+Build: JDK 17 and `mvn -B clean verify`. Output: `target/carmode-bridge-0.1.48-debug.apk`. A successful build/signature check is not head-unit acceptance.
 
 ## Implementation files
 

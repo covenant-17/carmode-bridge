@@ -34,6 +34,7 @@ final class CamryNavigation {
     }
     static void launch(Context context, Intent target, Bundle options) {
         CarModeApp app = CarModeApp.from(context);
+        if (options == null) CameraBootReturn.manual(context, target);
         if (options == null && (homeOnly(context, target) || cameraWindow(context, target) || appWindow(context, target))) {
             CamryHome.cancelStartup(); DockService.hide(context);
             context.startActivity(new Intent(context, HomeProxyActivity.class).setAction(Intent.ACTION_MAIN)

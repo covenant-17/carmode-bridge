@@ -16,6 +16,8 @@ public final class CarModeApp extends Application {
         if ("camry_home".equals(key) || "camry_dock".equals(key) || "camry_dock_position".equals(key) || "camry_dock_opacity".equals(key) || "language".equals(key))
             if (DockService.active() != null) DockService.active().settingsChanged();
         if ("camry_home".equals(key)) DockService.sidebarAbsent(this);
+        if ("camry_camera_boot_return".equals(key) || "camry_home".equals(key))
+            ModeRuntimeService.sync(this, "camera_boot_return_settings");
         if (musicHttp != null && ("enabled".equals(key) || "auto_start".equals(key)
                 || "hcn_mode".equals(key) || "music_http_enabled".equals(key) || "music_http_url".equals(key)))
             musicHttp.cancel("settings_changed");

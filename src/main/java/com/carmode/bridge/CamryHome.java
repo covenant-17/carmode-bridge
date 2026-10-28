@@ -122,6 +122,7 @@ final class CamryHome {
                             DockService.hide(activity);
                             try {
                                 Intent target = AppResolver.resolve(activity, entry.component.flattenToString());
+                                CameraBootReturn.manual(activity, target);
                                 boolean camera = CamryNavigation.cameraWindow(activity, target);
                                 boolean allWindow = CamryNavigation.appWindow(activity, target);
                                 if (CamryNavigation.isZlinkTarget(activity, target) || camera || allWindow)

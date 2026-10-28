@@ -12,9 +12,10 @@ final class CamrySettings {
     private static final String[] CORNERS = {"top_left", "top_right", "bottom_left", "bottom_right"};
     private final Activity activity;
     private final Prefs prefs;
-    private Switch home, auto, dock, window, homeOnly, allApps;
+    private Switch home, auto, dock, window, homeOnly, allApps, cameraReturn;
     private TextView windowHint;
     private Button target;
+    private Button usageAccess;
     private boolean refreshing;
     private CamrySettings(Activity activity) { this.activity = activity; prefs = new Prefs(activity); }
     static CamrySettings render(Activity activity, LinearLayout parent) {
@@ -27,6 +28,7 @@ final class CamrySettings {
                 CamryControl.error(activity, R.string.camry_no_exit); refresh(); return;
             }
             prefs.set("camry_home", value);
+            if (!value) prefs.set("camry_camera_boot_return", false);
             if (!value) { prefs.set("camry_zlink_auto", false); prefs.set("camry_zlink_home_only", false); prefs.set("camry_all_apps_window", false); }
             refresh();
         });
@@ -56,6 +58,19 @@ final class CamrySettings {
             edit.apply(); refresh();
         });
         allApps.setTooltipText(I18n.text(activity, R.string.camry_all_apps_window_hint));
+        cameraReturn = toggle(page, R.string.camry_camera_boot_return, prefs.cameraBootReturn(), value -> {
+            if (value && !CamryControl.available(activity)) {
+                CamryControl.error(activity, R.string.camry_no_exit); refresh(); return;
+            }
+            android.content.SharedPreferences.Editor edit = prefs.data.edit().putBoolean("camry_camera_boot_return", value);
+            if (value) edit.putBoolean("camry_home", true).putBoolean("camry_zlink_window", true);
+            edit.apply(); refresh();
+        });
+        cameraReturn.setTooltipText(I18n.text(activity, R.string.camry_camera_boot_return_hint));
+        usageAccess = CamryUi.button(page, R.string.camry_usage_access, () -> {
+            try { activity.startActivity(new Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS)); }
+            catch (RuntimeException unavailable) { CamryControl.error(activity, R.string.camry_usage_unavailable); }
+        });
         windowHint = CamryUi.text(page, I18n.text(activity, R.string.camry_window_hint), 16);
         dock = toggle(page, R.string.camry_dock, prefs.dockEnabled(), value -> prefs.set("camry_dock", value));
         CamryUi.button(page, R.string.camry_help, () -> Toast.makeText(activity,
@@ -93,6 +108,10 @@ final class CamrySettings {
         window.setChecked(prefs.zlinkWindow());
         homeOnly.setChecked(prefs.zlinkHomeOnly());
         allApps.setChecked(prefs.allAppsWindow());
+        cameraReturn.setChecked(prefs.cameraBootReturn());
+        usageAccess.setVisibility(prefs.cameraBootReturn() ? android.view.View.VISIBLE : android.view.View.GONE);
+        usageAccess.setText(I18n.text(activity, CameraBootReturn.usageAllowed(activity)
+                ? R.string.camry_usage_access_granted : R.string.camry_usage_access));
         windowHint.setVisibility(prefs.zlinkWindow() ? android.view.View.VISIBLE : android.view.View.GONE);
         target.setText(I18n.text(activity, R.string.camry_select_zlink) + "\n" + prefs.zlinkApp());
         refreshing = false;

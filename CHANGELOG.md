@@ -10,6 +10,10 @@ Historical implementation notes. Current operation and setup are documented in [
 - Add a source-level regression guard for English-default settings and MODE labels while preserving an explicit Russian choice.
 - These documentation/test maintenance entries originated against 0.1.22; application changes for 0.1.23 are listed below.
 
+## 0.1.48
+
+- Add an opt-in boot-camera return switch: during the first two minutes after Android starts, observe app foreground events through explicitly granted Usage access and return to Camry Home with default ZLink once if the configured camera appears. Persist the boot claim before navigation, stop observing after consumption/timeout, and preserve the claim across process restarts. Camera launches through CarMode consume the claim without redirecting. Require Camry Home, overlay permission and an unlocked interactive screen; disable on rollback/Home off. Do not inject Back, force-stop cameras or repeat corrections. Native reverse-gear activation cannot be distinguished from other external camera launches during this initial window; the switch defaults off.
+
 ## 0.1.47
 
 - Add an independent All apps in Home window switch, off by default and persisted across restarts. Enabling it enables Camry Home and window mode. Route explicit external apps opened through Apps, pinned shortcuts, MODE/Dock assignments and the Android settings rail button into the measured Home rectangle. Keep CarMode's own settings, Apps and recovery outside the embedded destination to prevent recursion. Home still defaults to ZLink. Turning off Home/window mode or restoring OEM clears the new switch. Do not intercept launches outside CarMode or enforce bounds with automatic relaunch loops; actual resizing remains app/firmware-dependent.

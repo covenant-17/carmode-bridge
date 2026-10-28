@@ -12,11 +12,13 @@ public final class ModeRuntimeService extends Service {
     private MenuController menu;
     private HcnModeReceiver hcn;
     private boolean screenRegistered;
+    private CameraBootReturn cameraBootReturn;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private String previousComparison = "";
     public static ModeRuntimeService active() { return instance; }
     private static boolean needed(CarModeApp app) {
-        return !app.recovering() && com.carmode.bridge.core.RuntimePolicy.keepService(false, app.ready(), app.prefs().diagnostics());
+        return !app.recovering() && (com.carmode.bridge.core.RuntimePolicy.keepService(false, app.ready(), app.prefs().diagnostics())
+                || CameraBootReturn.needed(app));
     }
     public static void sync(Context context, String reason) {
         CarModeApp app = CarModeApp.from(context);
@@ -49,6 +51,7 @@ public final class ModeRuntimeService extends Service {
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(screen, filter, Context.RECEIVER_EXPORTED);
         else registerReceiver(screen, filter);
         screenRegistered = true;
+        cameraBootReturn = new CameraBootReturn(this);
         ServiceEvidence.record(this, "runtime_created"); monitor.run();
     }
     private final BroadcastReceiver screen = new BroadcastReceiver() {
@@ -71,6 +74,7 @@ public final class ModeRuntimeService extends Service {
     };
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (!needed(app)) { stopSelf(); return START_NOT_STICKY; }
+        if (cameraBootReturn != null) cameraBootReturn.refresh();
         app.log().record("runtime_started", "reason", intent == null ? "system_sticky_restart" : intent.getStringExtra("reason"),
                 "flags", flags, "start_id", startId);
         BootEvidence.record(this, "runtime_started", intent == null ? "system_sticky_restart" : intent.getStringExtra("reason"));
@@ -91,6 +95,7 @@ public final class ModeRuntimeService extends Service {
         return hcn == null ? new JSONObject().put("receiver_registered", false) : hcn.snapshot();
     }
     @Override public void onDestroy() {
+        if (cameraBootReturn != null) cameraBootReturn.close();
         handler.removeCallbacksAndMessages(null); cancel("runtime_destroyed");
         if (hcn != null) hcn.close();
         if (screenRegistered) unregisterReceiver(screen);

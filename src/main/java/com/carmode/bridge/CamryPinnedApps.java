@@ -84,6 +84,7 @@ final class CamryPinnedApps {
                 if (component.isEmpty()) { choose.accept(slot); return; }
                 try {
                     Intent target = AppResolver.resolve(activity, component);
+                    CameraBootReturn.manual(activity, target);
                     boolean cameraWindow = CamryNavigation.cameraWindow(activity, target);
                     boolean allWindow = CamryNavigation.appWindow(activity, target);
                     if (CamryNavigation.isZlinkTarget(activity, target) || cameraWindow || allWindow) CamryNavigation.launch(activity, target, null);
